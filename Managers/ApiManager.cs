@@ -1,23 +1,17 @@
-﻿using StardewModdingAPI;
+﻿#nullable enable
+using StardewModdingAPI;
 using System;
 using System.Collections.Generic;
 
 namespace Common.Managers
 {
-    internal class ApiManager
+    internal class ApiManager(IModHelper helper, IMonitor monitor)
     {
-        private readonly Dictionary<Type, object> _apis;
-        IModHelper _helper;
-        IMonitor _monitor;
+        private readonly Dictionary<Type, object> _apis = [];
+        readonly IModHelper _helper = helper;
+        readonly IMonitor _monitor = monitor;
 
-        public ApiManager(IModHelper helper, IMonitor monitor)
-        {
-            _helper = helper;
-            _monitor = monitor;
-            _apis = new Dictionary<Type, object>();
-        }
-
-        public T GetApi<T>(string apiName, bool logError = true) where T : class
+        public T? GetApi<T>(string apiName, bool logError = true) where T : class
         {
             try
             {
