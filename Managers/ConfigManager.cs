@@ -6,17 +6,28 @@ using System.Reflection;
 
 namespace Common.Managers
 {
+    public static class TranslationHelper
+    {
+        private static ITranslationHelper _translations;
+
+        public static void Init(ITranslationHelper translations)
+        {
+            _translations = translations;
+        }
+
+        public static Translation GetByKey(string key)
+        {
+            return _translations.Get(key);
+        }
+    }
+
     public static class ConfigManager
     {
         private static IManifest _manifest;
         private static object _config;
         private static IMonitor _monitor;
-        private static IGenericModConfigMenuApi _configApi;
-        internal static ApiManager _apiManager;
-
-        /// <summary>
-        /// Initializes the configuration manager.
-        /// </summary>
+        public static IGenericModConfigMenuApi _configApi;
+        private static ApiManager _apiManager;
         public static void Initialize(IManifest manifest, object config, IModHelper helper, IMonitor monitor)
         {
             _manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));
@@ -24,37 +35,34 @@ namespace Common.Managers
             _monitor = monitor;
             _apiManager = new ApiManager(helper, monitor);
             _configApi = _apiManager.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
-            I18n.Init(helper.Translation);
+            _configApi.Register(manifest, resetAction, () => helper.WriteConfig(_config));
+
+            TranslationHelper.Init(helper.Translation);
         }
 
-        /// <summary>
-        /// Adds a configuration option to the mod config menu.
-        /// </summary>
         public static void AddOption(string name)
         {
             if (_configApi == null)
             {
-                _monitor?.LogOnce($"GenericModConfigMenu not found.", LogLevel.Debug);
+                _monitor.LogOnce($"GenericModConfigMenu not found.", LogLevel.Debug);
                 return;
             }
 
             if (_config == null)
             {
-                _monitor?.Log($"Error: Configuration object is not initialized.", LogLevel.Error);
+                _monitor.Log($"Error: ModConfig is not initialized.", LogLevel.Error);
                 return;
             }
 
-            Type configType = _config.GetType();
-            PropertyInfo propertyInfo = configType.GetProperty(name);
+            PropertyInfo propertyInfo = _config.GetType().GetProperty(name);
             if (propertyInfo == null)
             {
                 _monitor.Log($"Error: Property '{name}' not found in configuration object.", LogLevel.Error);
                 return;
             }
 
-            string projectName = Assembly.GetEntryAssembly()?.GetName().Name;
-            Func<string> getName = () => I18n.GetByKey($"Config.{projectName}.{name}.Name");
-            Func<string> getDescription = () => I18n.GetByKey($"Config.{projectName}.{name}.Description");
+            Func<string> getName = () => TranslationHelper.GetByKey($"Config.{_config.GetType().Namespace}.{name}.Name");
+            Func<string> getDescription = () => TranslationHelper.GetByKey($"Config.{_config.GetType().Namespace}.{name}.Description");
 
             if (getName == null || getDescription == null)
             {
@@ -99,5 +107,19 @@ namespace Common.Managers
                     break;
             }
         }
+
+        static Action resetAction = () =>
+        {
+            MethodInfo resetMethod = _config.GetType().GetMethod("InitializeDefaultConfig", BindingFlags.Public | BindingFlags.Instance);
+            if (resetMethod != null)
+            {
+                // Invoke ResetConfig method
+                resetMethod.Invoke(_config, null);
+            }
+            else
+            {
+                _monitor.Log("Error: ResetConfig method not found.", LogLevel.Error);
+            }
+        };
     }
 }
