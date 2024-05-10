@@ -76,6 +76,7 @@ namespace Common.Util
             double currentTime = Game1.currentGameTime.TotalGameTime.TotalSeconds;
             if (currentTime - lastClickTime >= ClickCooldown)
             {
+                Game1.playSound("backpackIN");
                 Click?.Invoke(new ButtonClickEventArgs(fieldId));
                 lastClickTime = currentTime;
             }
