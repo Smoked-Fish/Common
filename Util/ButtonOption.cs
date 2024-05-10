@@ -17,9 +17,6 @@ namespace Common.Util
 
     internal class ButtonOptions
     {
-        // Events
-        public static Action<ButtonClickEventArgs>? click;
-
         // Fields
         private readonly string leftText;
         private readonly string rightText;
@@ -36,6 +33,15 @@ namespace Common.Util
         private const double ClickCooldown = 0.1;
         private static double lastClickTime = 0;
 
+        // Properties
+        public int RightTextWidth { get; private set; }
+        public int RightTextHeight { get; private set; }
+        public int LeftTextWidth { get; private set; }
+        public int LeftTextHeight { get; private set; }
+
+        // Events
+        public static Action<ButtonClickEventArgs>? Click { get; set; }
+
         // Constructor
         public ButtonOptions(string leftText = "", string rightText = "", string? fieldID = null, bool rightHover = false, bool leftHover = false, string? hoverText = null)
         {
@@ -47,14 +53,6 @@ namespace Common.Util
             this.hoverText = hoverText;
             CalculateTextMeasurements();
         }
-
-        // Properties
-        public int RightTextWidth { get; private set; }
-        public int RightTextHeight { get; private set; }
-        public int LeftTextWidth { get; private set; }
-        public int LeftTextHeight { get; private set; }
-        public static Action<ButtonClickEventArgs>? Click { get => click; set => click = value; }
-
 
         // Private Methods
         // Calculate the width and height of the text for drawing
