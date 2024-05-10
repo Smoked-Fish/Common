@@ -144,6 +144,13 @@ namespace Common.Managers
         {
             if (!AreConfigObjectsInitialized()) return;
 
+            leftText = TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{leftText}.Title");
+            rightText = TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{rightText}.Button");
+            if (hoverText != null)
+            {
+                hoverText = TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
+            }
+
             var buttonOption = new ButtonOptions(leftText: leftText, rightText: rightText, fieldID: fieldId, rightHover: rightHover, leftHover: leftHover, hoverText: hoverText);
 
             ConfigApi!.AddComplexOption(
