@@ -20,7 +20,7 @@ namespace Common.Util
         }
 
         // Draw method to draw the separator
-        internal static void Draw(SpriteBatch spriteBatch, Vector2 position)
+        public void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
             // Calculate position and width
             int top = (int)position.Y;

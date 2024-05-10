@@ -82,22 +82,22 @@ namespace Common.Util
         }
 
         // Check if the mouse is hovering over the button
-        private static bool IsHovered(int drawX, int drawY, int width, int height)
+        private static bool IsHovered(Vector2 drawPos, int width, int height)
         {
             int mouseX = Mouse.GetState().X;
             int mouseY = Mouse.GetState().Y;
-            return drawX <= mouseX && mouseX <= drawX + width && drawY <= mouseY && mouseY <= drawY + height;
+            return drawPos.X <= mouseX && mouseX <= drawPos.X + width && drawPos.Y <= mouseY && mouseY <= drawPos.Y + height;
         }
 
         // Update the mouse state and handle button hover sound effects
-        private void UpdateMouseState(int drawX, int drawY)
+        private void UpdateMouseState(Vector2 drawPos)
         {
             ButtonState buttonState = Mouse.GetState().LeftButton;
             int mouseX = Game1.getMouseX();
             int mouseY = Game1.getMouseY();
 
             // Check if the button is clicked
-            if (buttonState == ButtonState.Pressed && drawX <= mouseX && mouseX <= drawX + RightTextWidth && drawY <= mouseY && mouseY <= drawY + RightTextHeight && lastButtonState == ButtonState.Released)
+            if (buttonState == ButtonState.Pressed && drawPos.X <= mouseX && mouseX <= drawPos.X + RightTextWidth && drawPos.Y <= mouseY && mouseY <= drawPos.Y + RightTextHeight && lastButtonState == ButtonState.Released)
             {
                 OnClick(fieldID);
             }
@@ -107,10 +107,10 @@ namespace Common.Util
             // Calculate the position of the button and check for hover effect
             int gmcmWidth = Math.Min(1200, Game1.uiViewport.Width - 200);
             int gmcmLeft = (Game1.uiViewport.Width - gmcmWidth) / 2;
-            int top = (drawY);
+            int top = (int)drawPos.Y;
             int left = gmcmLeft;
 
-            bool isRightHoveredNow = IsHovered(drawX, drawY, RightTextWidth, RightTextHeight);
+            bool isRightHoveredNow = IsHovered(drawPos, RightTextWidth, RightTextHeight);
 
             // Play hover sound effect if the button is hovered over
             if (isRightHoveredNow && !wasRightHoveredPreviously)
@@ -118,7 +118,7 @@ namespace Common.Util
                 Game1.playSound("shiny4");
             }
 
-            bool isLeftHoveredNow = IsHovered(drawX, drawY, LeftTextWidth, LeftTextHeight);
+            bool isLeftHoveredNow = IsHovered(drawPos, LeftTextWidth, LeftTextHeight);
 
             isRightHovered = isRightHoveredNow;
             wasRightHoveredPreviously = isRightHoveredNow;
@@ -131,14 +131,14 @@ namespace Common.Util
 
         // Public Methods
         // Draw the button with hover effect
-        public void Draw(SpriteBatch b, int posX, int posY)
+        public void Draw(SpriteBatch b, Vector2 position)
         {
             try
             {
-                UpdateMouseState(posX, posY);
+                UpdateMouseState(position);
 
                 Color rightTextColor = isRightHovered ? Game1.unselectedOptionColor : Game1.textColor;
-                Vector2 rightTextPosition = new(posX, posY);
+                Vector2 rightTextPosition = new(position.X, position.Y);
                 Utility.drawTextWithShadow(b, rightText, Game1.dialogueFont, rightTextPosition, rightTextColor);
 
                 Vector2 leftTextPosition = new(storedValues.Left - 8, storedValues.Top);
