@@ -4,9 +4,9 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System;
 
-namespace SplitScreenRegions.Framework.UI
+namespace Common.Util
 {
-    public class SeparatorOptions
+    internal class SeparatorOptions
     {
         private const int SeparatorHeight = 3;
 
@@ -20,7 +20,7 @@ namespace SplitScreenRegions.Framework.UI
         }
 
         // Draw method to draw the separator
-        public static void Draw(SpriteBatch spriteBatch, Vector2 position)
+        internal static void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
             // Calculate position and width
             int top = (int)position.Y;

@@ -1,8 +1,7 @@
 ﻿#nullable enable
 using Common.Interfaces;
+using Common.Util;
 using HarmonyLib;
-using SplitScreenRegions.Framework.Patches;
-using SplitScreenRegions.Framework.UI;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using System;
@@ -14,7 +13,7 @@ namespace Common.Managers
     {
         private static ITranslationHelper? _translations;
 
-        public static void Init(ITranslationHelper translations)
+        internal static void Init(ITranslationHelper translations)
         {
             _translations = translations;
         }
@@ -23,7 +22,7 @@ namespace Common.Managers
         {
             if (_translations == null)
             {
-                throw new InvalidOperationException("Translations collection is not initialized.");
+                throw new InvalidOperationException("TranslationHelper is not initialized.");
             }
             return _translations.Get(key);
         }
@@ -34,18 +33,21 @@ namespace Common.Managers
         // Fields
         private static IManifest? _manifest;
         private static object? _config;
-        private static IMonitor? _monitor;
-        private static IGenericModConfigMenuApi? _configApi;
-        public static void Initialize(IManifest manifest, object config, IModHelper helper, IMonitor monitor, Harmony harmony)
+
+        // Properties
+        public static IGenericModConfigMenuApi? ConfigApi { get; set; }
+        public static IMonitor? Monitor { get; set; }
+
+        public static void Initialize(IManifest manifest, object config, IModHelper helper, IMonitor monitor, Harmony harmony, bool? runPatches = false)
         {
             _manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));
             _config = config ?? throw new ArgumentNullException(nameof(config));
             Monitor = monitor;
             ApiManager apiManager = new(helper, monitor);
             ConfigApi = apiManager.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
-            ConfigApi?.Register(manifest, ResetAction, () => helper.WriteConfig(_config));
+            ConfigApi?.Register(manifest, resetAction, () => helper.WriteConfig(_config));
 
-            if (ConfigApi != null)
+            if (ConfigApi != null && runPatches == true)
             {
                 new PageHelper(harmony, monitor).Apply();
                 new TooltipHelper(harmony, monitor).Apply();
@@ -54,26 +56,11 @@ namespace Common.Managers
             TranslationHelper.Init(helper.Translation);
         }
 
-        // Properties
-        public static Action ResetAction => resetAction;
-        public static IGenericModConfigMenuApi? ConfigApi { get => _configApi; set => _configApi = value; }
-        public static IMonitor? Monitor { get => _monitor; set => _monitor = value; }
-
         public static void AddOption(string name)
         {
-            if (ConfigApi == null)
-            {
-                Monitor?.LogOnce($"GenericModConfigMenu not found.", LogLevel.Debug);
-                return;
-            }
+            if (!AreConfigObjectsInitialized()) return;
 
-            if (_config == null)
-            {
-                Monitor?.Log($"Error: ModConfig is not initialized.", LogLevel.Error);
-                return;
-            }
-
-            PropertyInfo? propertyInfo = _config.GetType().GetProperty(name);
+            PropertyInfo? propertyInfo = _config!.GetType().GetProperty(name);
             if (propertyInfo == null)
             {
                 Monitor?.Log($"Error: Property '{name}' not found in configuration object.", LogLevel.Error);
@@ -104,28 +91,54 @@ namespace Common.Managers
             switch (propertyInfo.PropertyType.Name)
             {
                 case nameof(Boolean):
-                    ConfigApi.AddBoolOption(_manifest, (Func<bool>)getter, (Action<bool>)setter, getName, getDescription);
+                    ConfigApi!.AddBoolOption(_manifest!, (Func<bool>)getter, (Action<bool>)setter, getName, getDescription);
                     break;
                 case nameof(Int32):
-                    ConfigApi.AddNumberOption(_manifest, (Func<int>)getter, (Action<int>)setter, getName, getDescription);
+                    ConfigApi!.AddNumberOption(_manifest!, (Func<int>)getter, (Action<int>)setter, getName, getDescription);
                     break;
                 case nameof(Single):
-                    ConfigApi.AddNumberOption(_manifest, (Func<float>)getter, (Action<float>)setter, getName, getDescription);
+                    ConfigApi!.AddNumberOption(_manifest!, (Func<float>)getter, (Action<float>)setter, getName, getDescription);
                     break;
                 case nameof(String):
-                    ConfigApi.AddTextOption(_manifest, (Func<string>)getter, (Action<string>)setter, getName, getDescription);
+                    ConfigApi!.AddTextOption(_manifest!, (Func<string>)getter, (Action<string>)setter, getName, getDescription);
                     break;
                 case nameof(SButton):
-                    ConfigApi.AddKeybind(_manifest, (Func<SButton>)getter, (Action<SButton>)setter, getName, getDescription);
+                    ConfigApi!.AddKeybind(_manifest!, (Func<SButton>)getter, (Action<SButton>)setter, getName, getDescription);
                     break;
                 case nameof(KeybindList):
-                    ConfigApi.AddKeybindList(_manifest, (Func<KeybindList>)getter, (Action<KeybindList>)setter, getName, getDescription);
+                    ConfigApi!.AddKeybindList(_manifest!, (Func<KeybindList>)getter, (Action<KeybindList>)setter, getName, getDescription);
                     break;
                 default:
                     Monitor?.Log($"Error: Unsupported property type '{propertyInfo.PropertyType.Name}' for '{name}'.", LogLevel.Error);
                     break;
             }
         }
+
+        public static void AddSectionTitle(string title, string? tooltip = null)
+        {
+            if (!AreConfigObjectsInitialized()) return;
+
+            ConfigApi!.AddSectionTitle(_manifest!, 
+                () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{title}.Title") ?? title,
+                () => tooltip != null ? TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{tooltip}.Description") ?? tooltip : null!);
+        }
+
+        public static void AddPageLink(string name, string? tooltip = null)
+        {
+            if (!AreConfigObjectsInitialized()) return;
+
+            ConfigApi!.AddPageLink(_manifest!, name, 
+                () => string.Concat("> ", TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Title") ?? name),
+                () => tooltip != null ? TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Description") ?? name : null!);
+        }
+
+        public static void AddPage(string name)
+        {
+            if (!AreConfigObjectsInitialized()) return;
+
+            ConfigApi!.AddPage(_manifest!, name, () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Title") ?? name);
+        }
+
 
         public static void AddButtonOption(IManifest mod, Func<string> leftText, Func<string> rightText, string? fieldId = null, bool rightHover = false, bool leftHover = false, Func<string>? hoverText = null)
         {
@@ -151,6 +164,17 @@ namespace Common.Managers
 
             var separatorOption = new SeparatorOptions();
             ConfigApi.AddComplexOption(mod: mod, name: () => "", draw: SeparatorOptions.Draw);
+        }
+
+        // Helper Methods
+        private static bool AreConfigObjectsInitialized()
+        {
+            if (ConfigApi == null || _config == null || _manifest == null)
+            {
+                Monitor?.LogOnce($"Error: Configuration objects not initialized.", LogLevel.Error);
+                return false;
+            }
+            return true;
         }
 
         private static readonly Action resetAction = () =>

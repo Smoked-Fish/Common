@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Common.Managers
 {
-    internal class ApiManager(IModHelper helper, IMonitor monitor)
+    public class ApiManager(IModHelper helper, IMonitor monitor)
     {
         private readonly Dictionary<Type, object> _apis = [];
         readonly IModHelper _helper = helper;

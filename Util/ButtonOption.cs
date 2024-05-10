@@ -3,20 +3,19 @@ using Common.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SplitScreenRegions.Framework.Patches;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using System;
 
-namespace SplitScreenRegions.Framework.UI
+namespace Common.Util
 {
-    public class ButtonClickEventArgs(string fieldID)
+    internal class ButtonClickEventArgs(string fieldID)
     {
         public string FieldID { get; } = fieldID;
     }
 
-    public class ButtonOptions
+    internal class ButtonOptions
     {
         // Events
         private static Action<ButtonClickEventArgs>? click;

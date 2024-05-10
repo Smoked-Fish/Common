@@ -5,11 +5,10 @@ using StardewModdingAPI;
 using StardewValley.Menus;
 using StardewValley;
 using System;
-using Microsoft.Xna.Framework;
 
-namespace SplitScreenRegions.Framework.Patches
+namespace Common.Util
 {
-    internal class TooltipHelper
+    public class TooltipHelper
     {
         public static string? Title { get; set; }
         public static string? Body { get; set; }

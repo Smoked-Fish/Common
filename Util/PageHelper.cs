@@ -3,15 +3,16 @@ using HarmonyLib;
 using StardewModdingAPI;
 using System;
 
-namespace SplitScreenRegions.Framework.Patches
+namespace Common.Util
 {
-    internal class PageHelper
+    public class PageHelper
     {
-        readonly Harmony _harmony;
-        readonly IMonitor _monitor;
 
-        public static Action<string>? OpenPage;
-        public static string? CurrPage;
+        public static Action<string>? OpenPage { get; set; }
+        public static string? CurrPage { get; set; }
+
+        private readonly Harmony _harmony;
+        private readonly IMonitor _monitor;
         internal PageHelper(Harmony harmony, IMonitor monitor)
         {
             _harmony = harmony;
