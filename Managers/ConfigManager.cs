@@ -140,11 +140,11 @@ namespace Common.Managers
         }
 
 
-        public static void AddButtonOption(Func<string> leftText, Func<string> rightText, string? fieldId = null, bool rightHover = false, bool leftHover = false, Func<string>? hoverText = null)
+        public static void AddButtonOption(string leftText, string rightText, string? fieldId = null, bool rightHover = false, bool leftHover = false, string? hoverText = null)
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            var buttonOption = new ButtonOptions(leftText: leftText(), rightText: rightText(), fieldID: fieldId, rightHover: rightHover, leftHover: leftHover, hoverText != null ? hoverText() : null);
+            var buttonOption = new ButtonOptions(leftText: leftText, rightText: rightText, fieldID: fieldId, rightHover: rightHover, leftHover: leftHover, hoverText: hoverText);
 
             ConfigApi!.AddComplexOption(
                 mod: _manifest!,
