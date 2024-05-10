@@ -10,7 +10,7 @@ using System;
 
 namespace Common.Util
 {
-    internal class ButtonClickEventArgs(string fieldID)
+    public class ButtonClickEventArgs(string fieldID)
     {
         public string FieldID { get; } = fieldID;
     }
@@ -18,7 +18,7 @@ namespace Common.Util
     internal class ButtonOptions
     {
         // Events
-        private static Action<ButtonClickEventArgs>? click;
+        public static Action<ButtonClickEventArgs>? click;
 
         // Fields
         private readonly string leftText;
