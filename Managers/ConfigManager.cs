@@ -140,16 +140,16 @@ namespace Common.Managers
         }
 
 
-        public static void AddButtonOption(IManifest mod, Func<string> leftText, Func<string> rightText, string? fieldId = null, bool rightHover = false, bool leftHover = false, Func<string>? hoverText = null)
+        public static void AddButtonOption(Func<string> leftText, Func<string> rightText, string? fieldId = null, bool rightHover = false, bool leftHover = false, Func<string>? hoverText = null)
         {
-            if (ConfigApi == null) return;
+            if (!AreConfigObjectsInitialized()) return;
 
             var buttonOption = new ButtonOptions(leftText: leftText(), rightText: rightText(), fieldID: fieldId, rightHover: rightHover, leftHover: leftHover, hoverText != null ? hoverText() : null);
 
-            ConfigApi.AddComplexOption(
-                mod: mod,
+            ConfigApi!.AddComplexOption(
+                mod: _manifest!,
                 name: () => "",
-                draw: (batch, position) => buttonOption.Draw(batch, (int)position.X, (int)position.Y),
+                draw: buttonOption.Draw,
                 height: () => buttonOption.RightTextHeight,
                 beforeMenuOpened: () => { },
                 beforeSave: () => { },
@@ -158,12 +158,15 @@ namespace Common.Managers
             );
         }
 
-        public static void AddHorizontalSeparator(IManifest mod)
+        public static void AddHorizontalSeparator()
         {
-            if (ConfigApi == null) return;
+            if (!AreConfigObjectsInitialized()) return;
 
             var separatorOption = new SeparatorOptions();
-            ConfigApi.AddComplexOption(mod: mod, name: () => "", draw: SeparatorOptions.Draw);
+            ConfigApi!.AddComplexOption(
+                mod: _manifest!,
+                name: () => "",
+                draw: separatorOption.Draw);
         }
 
         // Helper Methods
