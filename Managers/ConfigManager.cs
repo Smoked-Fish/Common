@@ -38,6 +38,7 @@ namespace Common.Managers
     {
         // Fields
         private static IManifest? _manifest;
+        private static IModHelper? _helper;
         private static object? _config;
 
         // Properties
@@ -47,11 +48,12 @@ namespace Common.Managers
         public static void Initialize(IManifest manifest, object config, IModHelper helper, IMonitor monitor, Harmony? harmony = null)
         {
             _manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));
+            _helper = helper ?? throw new ArgumentNullException(nameof(helper));
             _config = config ?? throw new ArgumentNullException(nameof(config));
             Monitor = monitor;
             ApiManager apiManager = new(helper, monitor);
             ConfigApi = apiManager.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
-            ConfigApi?.Register(manifest, resetAction, () => helper.WriteConfig(_config));
+            ConfigApi?.Register(manifest, resetAction, saveAction);
 
             EnablePatches(harmony);
 
@@ -79,7 +81,10 @@ namespace Common.Managers
             }
 
             var getterMethod = propertyInfo.GetGetMethod();
-            var setterMethod = propertyInfo.GetSetMethod();
+            //var setterMethod = propertyInfo.GetSetMethod();
+            MethodInfo? setterMethod = _config?.GetType().GetMethod("SetConfig", BindingFlags.Public | BindingFlags.Instance);
+
+
 
             if (getterMethod == null || setterMethod == null)
             {
@@ -88,27 +93,28 @@ namespace Common.Managers
             }
 
             var getter = Delegate.CreateDelegate(typeof(Func<>).MakeGenericType(propertyInfo.PropertyType), _config, getterMethod);
-            var setter = Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(propertyInfo.PropertyType), _config, setterMethod);
+            //var setter = Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(propertyInfo.PropertyType), _config, setterMethod);
+            var setter = setterMethod.Invoke(_config, [name, false]);
 
             switch (propertyInfo.PropertyType.Name)
             {
                 case nameof(Boolean):
-                    ConfigApi!.AddBoolOption(_manifest!, (Func<bool>)getter, (Action<bool>)setter, getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddBoolOption(_manifest!, (Func<bool>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(Int32):
-                    ConfigApi!.AddNumberOption(_manifest!, (Func<int>)getter, (Action<int>)setter, getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddNumberOption(_manifest!, (Func<int>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(Single):
-                    ConfigApi!.AddNumberOption(_manifest!, (Func<float>)getter, (Action<float>)setter, getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddNumberOption(_manifest!, (Func<float>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(String):
-                    ConfigApi!.AddTextOption(_manifest!, (Func<string>)getter, (Action<string>)setter, getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddTextOption(_manifest!, (Func<string>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(SButton):
-                    ConfigApi!.AddKeybind(_manifest!, (Func<SButton>)getter, (Action<SButton>)setter, getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddKeybind(_manifest!, (Func<SButton>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(KeybindList):
-                    ConfigApi!.AddKeybindList(_manifest!, (Func<KeybindList>)getter, (Action<KeybindList>)setter, getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddKeybindList(_manifest!, (Func<KeybindList>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
                     break;
                 default:
                     Monitor?.Log($"Error: Unsupported property type '{propertyInfo.PropertyType.Name}' for '{name}'.", LogLevel.Error);
@@ -214,11 +220,19 @@ namespace Common.Managers
             if (resetMethod != null)
             {
                 // Invoke ResetConfig method
-                resetMethod.Invoke(_config, null);
+                resetMethod.Invoke(_config, [null]);
             }
             else
             {
                 Monitor?.Log("Error: ResetConfig method not found.", LogLevel.Error);
+            }
+        };
+
+        private static readonly Action saveAction = () =>
+        {
+            if (_helper != null && _config != null)
+            {
+                _helper.WriteConfig(_config);
             }
         };
     }
