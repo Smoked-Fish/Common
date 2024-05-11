@@ -1,12 +1,13 @@
 ﻿#nullable enable
 using Common.Interfaces;
-using Common.Util;
 using HarmonyLib;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using System;
 using System.Reflection;
-
+#if EnableCommonPatches
+using Common.Util;
+#endif
 namespace Common.Managers
 {
     public static class TranslationHelper
