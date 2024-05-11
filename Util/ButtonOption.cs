@@ -19,10 +19,10 @@ namespace Common.Util
     internal class ButtonOptions
     {
         // Fields
-        private readonly string leftText;
-        private readonly string rightText;
+        private readonly Func<string> leftText;
+        private readonly Func<string> rightText;
+        private readonly Func<string>? hoverText;
         private readonly string fieldID;
-        private readonly string? hoverText;
         private readonly bool renderRightHover;
         private readonly bool renderLeftHover;
         private bool isRightHovered = false;
@@ -44,10 +44,10 @@ namespace Common.Util
         public static Action<ButtonClickEventArgs>? Click { get; set; }
 
         // Constructor
-        public ButtonOptions(string leftText = "", string rightText = "", string? fieldID = null, bool rightHover = false, bool leftHover = false, string? hoverText = null)
+        public ButtonOptions(Func<string>? leftText, Func<string>? rightText, string? fieldID = null, bool rightHover = false, bool leftHover = false, Func<string>? hoverText = null)
         {
-            this.leftText = leftText;
-            this.rightText = rightText;
+            this.leftText = leftText ?? (() => "");
+            this.rightText = rightText ?? (() => "");
             this.fieldID = fieldID ?? "";
             this.renderRightHover = rightHover;
             this.renderLeftHover = leftHover;
@@ -59,10 +59,10 @@ namespace Common.Util
         // Calculate the width and height of the text for drawing
         private void CalculateTextMeasurements()
         {
-            RightTextWidth = (int)Game1.dialogueFont.MeasureString(Game1.parseText(rightText, Game1.dialogueFont, 800)).X;
-            RightTextHeight = (int)Game1.dialogueFont.MeasureString(Game1.parseText(rightText, Game1.dialogueFont, 800)).Y;
-            LeftTextWidth = (int)MeasureString(leftText).X;
-            LeftTextHeight = (int)MeasureString(leftText).Y;
+            RightTextWidth = (int)Game1.dialogueFont.MeasureString(Game1.parseText(rightText(), Game1.dialogueFont, 800)).X;
+            RightTextHeight = (int)Game1.dialogueFont.MeasureString(Game1.parseText(rightText(), Game1.dialogueFont, 800)).Y;
+            LeftTextWidth = (int)MeasureString(leftText()).X;
+            LeftTextHeight = (int)MeasureString(leftText()).Y;
         }
 
         // Measure the width and height of a string
@@ -137,25 +137,26 @@ namespace Common.Util
         {
             try
             {
+                CalculateTextMeasurements(); // To correct size when switching languages
                 UpdateMouseState(position);
 
                 Color rightTextColor = isRightHovered ? Game1.unselectedOptionColor : Game1.textColor;
                 Vector2 rightTextPosition = new(position.X, position.Y);
-                Utility.drawTextWithShadow(b, rightText, Game1.dialogueFont, rightTextPosition, rightTextColor);
+                Utility.drawTextWithShadow(b, rightText(), Game1.dialogueFont, rightTextPosition, rightTextColor);
 
                 Vector2 leftTextPosition = new(storedValues.Left - 8, storedValues.Top);
-                SpriteText.drawString(b, leftText, (int)leftTextPosition.X, (int)leftTextPosition.Y, layerDepth: 1f, color: new Color?());
+                SpriteText.drawString(b, leftText(), (int)leftTextPosition.X, (int)leftTextPosition.Y, layerDepth: 1f, color: new Color?());
 
                 if (renderRightHover && isRightHovered)
                 {
                     if (hoverText != null)
                     {
-                        TooltipHelper.Hover = hoverText;
+                        TooltipHelper.Hover = hoverText();
                     }
                     else
                     {
-                        TooltipHelper.Title = leftText;
-                        TooltipHelper.Body = rightText;
+                        TooltipHelper.Title = leftText();
+                        TooltipHelper.Body = rightText();
                     }
                 }
 
@@ -163,12 +164,12 @@ namespace Common.Util
                 {
                     if (hoverText != null)
                     {
-                        TooltipHelper.Hover = hoverText;
+                        TooltipHelper.Hover = hoverText();
                     }
                     else
                     {
-                        TooltipHelper.Title = leftText;
-                        TooltipHelper.Body = rightText;
+                        TooltipHelper.Title = leftText();
+                        TooltipHelper.Body = rightText();
                     }
                 }
             }

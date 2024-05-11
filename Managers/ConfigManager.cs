@@ -155,14 +155,16 @@ namespace Common.Managers
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            leftText = TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{leftText}.Title");
-            rightText = TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{rightText}.Button");
+            Func<string> leftTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{leftText}.Title");
+            Func<string> rightTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{rightText}.Button");
+            Func<string>? hoverTextLocalized = null;
+
             if (hoverText != null)
             {
-                hoverText = TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
+                hoverTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
             }
 
-            var buttonOption = new ButtonOptions(leftText: leftText, rightText: rightText, fieldID: fieldId, rightHover: rightHover, leftHover: leftHover, hoverText: hoverText);
+            var buttonOption = new ButtonOptions(leftText: leftTextLocalized, rightText: rightTextLocalized, fieldID: fieldId, rightHover: rightHover, leftHover: leftHover, hoverText: hoverTextLocalized);
 
             ConfigApi!.AddComplexOption(
                 mod: _manifest!,
