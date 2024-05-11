@@ -58,7 +58,7 @@ namespace Common.Managers
             TranslationHelper.Init(helper.Translation);
         }
         
-        public static void AddOption(string name)
+        public static void AddOption(string name, string? fieldID = null)
         {
             if (!AreConfigObjectsInitialized()) return;
 
@@ -93,22 +93,22 @@ namespace Common.Managers
             switch (propertyInfo.PropertyType.Name)
             {
                 case nameof(Boolean):
-                    ConfigApi!.AddBoolOption(_manifest!, (Func<bool>)getter, (Action<bool>)setter, getName, getDescription);
+                    ConfigApi!.AddBoolOption(_manifest!, (Func<bool>)getter, (Action<bool>)setter, getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(Int32):
-                    ConfigApi!.AddNumberOption(_manifest!, (Func<int>)getter, (Action<int>)setter, getName, getDescription);
+                    ConfigApi!.AddNumberOption(_manifest!, (Func<int>)getter, (Action<int>)setter, getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(Single):
-                    ConfigApi!.AddNumberOption(_manifest!, (Func<float>)getter, (Action<float>)setter, getName, getDescription);
+                    ConfigApi!.AddNumberOption(_manifest!, (Func<float>)getter, (Action<float>)setter, getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(String):
-                    ConfigApi!.AddTextOption(_manifest!, (Func<string>)getter, (Action<string>)setter, getName, getDescription);
+                    ConfigApi!.AddTextOption(_manifest!, (Func<string>)getter, (Action<string>)setter, getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(SButton):
-                    ConfigApi!.AddKeybind(_manifest!, (Func<SButton>)getter, (Action<SButton>)setter, getName, getDescription);
+                    ConfigApi!.AddKeybind(_manifest!, (Func<SButton>)getter, (Action<SButton>)setter, getName, getDescription, fieldId: fieldID);
                     break;
                 case nameof(KeybindList):
-                    ConfigApi!.AddKeybindList(_manifest!, (Func<KeybindList>)getter, (Action<KeybindList>)setter, getName, getDescription);
+                    ConfigApi!.AddKeybindList(_manifest!, (Func<KeybindList>)getter, (Action<KeybindList>)setter, getName, getDescription, fieldId: fieldID);
                     break;
                 default:
                     Monitor?.Log($"Error: Unsupported property type '{propertyInfo.PropertyType.Name}' for '{name}'.", LogLevel.Error);
@@ -139,6 +139,13 @@ namespace Common.Managers
             if (!AreConfigObjectsInitialized()) return;
 
             ConfigApi!.AddPage(_manifest!, name, () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Title") ?? name);
+        }
+
+        public static void OnFieldChanged(Action<string, object> onChange)
+        {
+            if (!AreConfigObjectsInitialized()) return;
+
+            ConfigApi!.OnFieldChanged(_manifest!, onChange);
         }
 
 #if EnableCommonPatches
