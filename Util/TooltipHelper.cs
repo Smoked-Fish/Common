@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#if EnableCommonPatches
 using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -64,3 +65,4 @@ namespace Common.Util
         }
     }
 }
+#endif

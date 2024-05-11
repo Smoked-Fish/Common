@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#if EnableCommonPatches
 using HarmonyLib;
 using StardewModdingAPI;
 using System;
@@ -43,3 +44,4 @@ namespace Common.Util
         }
     }
 }
+#endif

@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#if EnableCommonPatches
 using Common.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -178,3 +179,4 @@ namespace Common.Util
         }
     }
 }
+#endif

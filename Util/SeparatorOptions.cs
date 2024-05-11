@@ -1,4 +1,5 @@
 ﻿#nullable enable
+#if EnableCommonPatches
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -32,3 +33,4 @@ namespace Common.Util
         }
     }
 }
+#endif

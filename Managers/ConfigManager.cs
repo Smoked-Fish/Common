@@ -28,6 +28,10 @@ namespace Common.Managers
         }
     }
 
+/*
+<DefineConstants>EnableCommonPatches</DefineConstants>
+<EnableCommonPatches>true</EnableCommonPatches>
+*/
     public static class ConfigManager
     {
         // Fields
@@ -38,7 +42,7 @@ namespace Common.Managers
         public static IGenericModConfigMenuApi? ConfigApi { get; set; }
         public static IMonitor? Monitor { get; set; }
 
-        public static void Initialize(IManifest manifest, object config, IModHelper helper, IMonitor monitor, Harmony harmony, bool? runPatches = false)
+        public static void Initialize(IManifest manifest, object config, IModHelper helper, IMonitor monitor, Harmony? harmony = null)
         {
             _manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -47,15 +51,11 @@ namespace Common.Managers
             ConfigApi = apiManager.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
             ConfigApi?.Register(manifest, resetAction, () => helper.WriteConfig(_config));
 
-            if (ConfigApi != null && runPatches == true)
-            {
-                new PageHelper(harmony, monitor).Apply();
-                new TooltipHelper(harmony, monitor).Apply();
-            }
+            EnablePatches(harmony);
 
             TranslationHelper.Init(helper.Translation);
         }
-
+        
         public static void AddOption(string name)
         {
             if (!AreConfigObjectsInitialized()) return;
@@ -139,7 +139,7 @@ namespace Common.Managers
             ConfigApi!.AddPage(_manifest!, name, () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Title") ?? name);
         }
 
-
+#if EnableCommonPatches
         public static void AddButtonOption(string leftText, string rightText, string? fieldId = null, bool rightHover = false, bool leftHover = false, string? hoverText = null)
         {
             if (!AreConfigObjectsInitialized()) return;
@@ -175,6 +175,7 @@ namespace Common.Managers
                 name: () => "",
                 draw: separatorOption.Draw);
         }
+#endif
 
         // Helper Methods
         private static bool AreConfigObjectsInitialized()
@@ -185,6 +186,17 @@ namespace Common.Managers
                 return false;
             }
             return true;
+        }
+
+        private static void EnablePatches(Harmony? harmony = null)
+        {
+#if EnableCommonPatches
+            if (ConfigApi != null && harmony != null && Monitor != null)
+            {
+                new PageHelper(harmony, Monitor).Apply();
+                new TooltipHelper(harmony, Monitor).Apply();
+            }
+#endif
         }
 
         private static readonly Action resetAction = () =>
