@@ -23,8 +23,8 @@ namespace Common.Util
         private readonly Func<string> rightText;
         private readonly Func<string>? hoverText;
         private readonly string fieldID;
-        private readonly bool renderRightHover;
-        private readonly bool renderLeftHover;
+        private readonly bool renderRightHover = false;
+        private readonly bool renderLeftHover = false;
         private bool isRightHovered = false;
         private bool wasRightHoveredPreviously = false;
         private bool isLeftHovered = false;
@@ -61,8 +61,10 @@ namespace Common.Util
         {
             RightTextWidth = (int)Game1.dialogueFont.MeasureString(Game1.parseText(rightText(), Game1.dialogueFont, 800)).X;
             RightTextHeight = (int)Game1.dialogueFont.MeasureString(Game1.parseText(rightText(), Game1.dialogueFont, 800)).Y;
-            LeftTextWidth = (int)MeasureString(leftText()).X;
-            LeftTextHeight = (int)MeasureString(leftText()).Y;
+
+            // TODO FIX
+            LeftTextWidth = (int)MeasureString(leftText(), true).X;
+            LeftTextHeight = (int)MeasureString(leftText(), true).Y;
         }
 
         // Measure the width and height of a string
@@ -77,9 +79,12 @@ namespace Common.Util
             double currentTime = Game1.currentGameTime.TotalGameTime.TotalSeconds;
             if (currentTime - lastClickTime >= ClickCooldown)
             {
-                Game1.playSound("backpackIN");
+                //Game1.playSound("backpackIN");
                 Click?.Invoke(new ButtonClickEventArgs(fieldId));
                 lastClickTime = currentTime;
+            } else
+            {
+                Game1.playSound("thudStep");
             }
         }
 
@@ -147,31 +152,10 @@ namespace Common.Util
                 Vector2 leftTextPosition = new(storedValues.Left - 8, storedValues.Top);
                 SpriteText.drawString(b, leftText(), (int)leftTextPosition.X, (int)leftTextPosition.Y, layerDepth: 1f, color: new Color?());
 
-                if (renderRightHover && isRightHovered)
-                {
-                    if (hoverText != null)
-                    {
-                        TooltipHelper.Hover = hoverText();
-                    }
-                    else
-                    {
-                        TooltipHelper.Title = leftText();
-                        TooltipHelper.Body = rightText();
-                    }
-                }
 
-                if (renderLeftHover && isLeftHovered)
-                {
-                    if (hoverText != null)
-                    {
-                        TooltipHelper.Hover = hoverText();
-                    }
-                    else
-                    {
-                        TooltipHelper.Title = leftText();
-                        TooltipHelper.Body = rightText();
-                    }
-                }
+                // TODO FIX HOVER
+                //TooltipHelper.Hover = hoverText!();
+
             }
             catch (Exception e)
             {

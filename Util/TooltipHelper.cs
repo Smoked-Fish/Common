@@ -47,7 +47,7 @@ namespace Common.Util
             var title = Title;
             var text = Body;
             var hover = Hover;
-            if ((title is null || text is null) && hover is not null)
+            if (hover != null)
             {
                 if (!hover.Contains('\n')) text = Game1.parseText(text, Game1.smallFont, 800);
                 IClickableMenu.drawHoverText(b, text, Game1.smallFont);
@@ -56,7 +56,7 @@ namespace Common.Util
             {
                 if (!text.Contains('\n')) text = Game1.parseText(text, Game1.smallFont, 800);
                 if (!title.Contains('\n')) title = Game1.parseText(title, Game1.dialogueFont, 800);
-                IClickableMenu.drawToolTip(b, text, title, null);
+                IClickableMenu.drawHoverText(b, text, Game1.smallFont);
             }
 
             Title = null;

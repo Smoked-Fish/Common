@@ -157,12 +157,7 @@ namespace Common.Managers
 
             Func<string> leftTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{leftText}.Title");
             Func<string> rightTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{rightText}.Button");
-            Func<string>? hoverTextLocalized = null;
-
-            if (hoverText != null)
-            {
-                hoverTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
-            }
+            Func<string>? hoverTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
 
             var buttonOption = new ButtonOptions(leftText: leftTextLocalized, rightText: rightTextLocalized, fieldID: fieldId, rightHover: rightHover, leftHover: leftHover, hoverText: hoverTextLocalized);
 
