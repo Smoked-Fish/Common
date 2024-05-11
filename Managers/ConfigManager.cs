@@ -8,6 +8,7 @@ using System.Reflection;
 #if EnableCommonPatches
 using Common.Util;
 #endif
+
 namespace Common.Managers
 {
     public static class TranslationHelper
