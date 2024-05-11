@@ -30,10 +30,10 @@ namespace Common.Managers
         }
     }
 
-/*
-<DefineConstants>EnableCommonPatches</DefineConstants>
-<EnableCommonPatches>true</EnableCommonPatches>
-*/
+    /*
+    <DefineConstants>EnableCommonPatches</DefineConstants>
+    <EnableCommonPatches>true</EnableCommonPatches>
+    */
     public static class ConfigManager
     {
         // Fields
@@ -59,8 +59,8 @@ namespace Common.Managers
 
             TranslationHelper.Init(helper.Translation);
         }
-        
-        public static void AddOption(string name, string? fieldID = null)
+
+        public static void AddOption(string name)
         {
             if (!AreConfigObjectsInitialized()) return;
 
@@ -81,10 +81,7 @@ namespace Common.Managers
             }
 
             var getterMethod = propertyInfo.GetGetMethod();
-            //var setterMethod = propertyInfo.GetSetMethod();
-            MethodInfo? setterMethod = _config?.GetType().GetMethod("SetConfig", BindingFlags.Public | BindingFlags.Instance);
-
-
+            var setterMethod = propertyInfo.GetSetMethod();
 
             if (getterMethod == null || setterMethod == null)
             {
@@ -94,27 +91,27 @@ namespace Common.Managers
 
             var getter = Delegate.CreateDelegate(typeof(Func<>).MakeGenericType(propertyInfo.PropertyType), _config, getterMethod);
             //var setter = Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(propertyInfo.PropertyType), _config, setterMethod);
-            var setter = setterMethod.Invoke(_config, [name, false]);
+            var setter = setAction;
 
             switch (propertyInfo.PropertyType.Name)
             {
                 case nameof(Boolean):
-                    ConfigApi!.AddBoolOption(_manifest!, (Func<bool>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddBoolOption(_manifest!, (Func<bool>)getter, (bool value) => setter(name, value), getName, getDescription);
                     break;
                 case nameof(Int32):
-                    ConfigApi!.AddNumberOption(_manifest!, (Func<int>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddNumberOption(_manifest!, (Func<int>)getter, (int value) => setter(name, value), getName, getDescription);
                     break;
                 case nameof(Single):
-                    ConfigApi!.AddNumberOption(_manifest!, (Func<float>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddNumberOption(_manifest!, (Func<float>)getter, (float value) => setter(name, value), getName, getDescription);
                     break;
                 case nameof(String):
-                    ConfigApi!.AddTextOption(_manifest!, (Func<string>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddTextOption(_manifest!, (Func<string>)getter, (string value) => setter(name, value), getName, getDescription);
                     break;
                 case nameof(SButton):
-                    ConfigApi!.AddKeybind(_manifest!, (Func<SButton>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddKeybind(_manifest!, (Func<SButton>)getter, (SButton value) => setter(name, value), getName, getDescription);
                     break;
                 case nameof(KeybindList):
-                    ConfigApi!.AddKeybindList(_manifest!, (Func<KeybindList>)getter, value => setterMethod.Invoke(_config, [name, value]), getName, getDescription, fieldId: fieldID);
+                    ConfigApi!.AddKeybindList(_manifest!, (Func<KeybindList>)getter, (KeybindList value) => setter(name, value), getName, getDescription);
                     break;
                 default:
                     Monitor?.Log($"Error: Unsupported property type '{propertyInfo.PropertyType.Name}' for '{name}'.", LogLevel.Error);
@@ -126,7 +123,7 @@ namespace Common.Managers
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            ConfigApi!.AddSectionTitle(_manifest!, 
+            ConfigApi!.AddSectionTitle(_manifest!,
                 () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{title}.Title") ?? title,
                 () => tooltip != null ? TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{tooltip}.Description") ?? tooltip : null!);
         }
@@ -135,7 +132,7 @@ namespace Common.Managers
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            ConfigApi!.AddPageLink(_manifest!, name, 
+            ConfigApi!.AddPageLink(_manifest!, name,
                 () => string.Concat("> ", TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Title") ?? name),
                 () => tooltip != null ? TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Description") ?? name : null!);
         }
@@ -214,9 +211,28 @@ namespace Common.Managers
 #endif
         }
 
+        private static readonly Action<string, object> setAction = (propertyName, newValue) =>
+        {
+            if (!AreConfigObjectsInitialized()) return;
+
+            MethodInfo? setMethod = _config!.GetType().GetMethod("SetConfig", BindingFlags.NonPublic | BindingFlags.Instance);
+            PropertyInfo? property = _config!.GetType().GetProperty(propertyName);
+            if (setMethod != null && property != null)
+            {
+                setMethod.Invoke(_config, [propertyName, newValue]);
+            }
+            else
+            {
+                Monitor?.Log("Error: SetConfig method not found.", LogLevel.Error);
+            }
+        };
+
+
         private static readonly Action resetAction = () =>
         {
-            MethodInfo? resetMethod = _config?.GetType().GetMethod("InitializeDefaultConfig", BindingFlags.Public | BindingFlags.Instance);
+            if (!AreConfigObjectsInitialized()) return;
+
+            MethodInfo? resetMethod = _config!.GetType().GetMethod("InitializeDefaultConfig", BindingFlags.Public | BindingFlags.Instance);
             if (resetMethod != null)
             {
                 // Invoke ResetConfig method
