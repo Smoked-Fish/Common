@@ -21,14 +21,15 @@ namespace Common.Util
         // Fields
         private readonly Func<string> leftText;
         private readonly Func<string> rightText;
-        private readonly Func<string>? hoverText;
+        //private readonly Func<string>? hoverText;
         private readonly string fieldID;
-        private readonly bool renderRightHover = false;
-        private readonly bool renderLeftHover = false;
+
+        //private readonly bool renderRightHover = false;
+        //private readonly bool renderLeftHover = false;
         private bool isRightHovered = false;
         private bool wasRightHoveredPreviously = false;
-        private bool isLeftHovered = false;
-        private bool wasLeftHoveredPreviously = false;
+        //private bool isLeftHovered = false;
+        //private bool wasLeftHoveredPreviously = false;
         private ButtonState lastButtonState;
         private (int Top, int Left) storedValues;
         private const double ClickCooldown = 0.1;
@@ -44,14 +45,14 @@ namespace Common.Util
         public static Action<ButtonClickEventArgs>? Click { get; set; }
 
         // Constructor
-        public ButtonOptions(Func<string>? leftText, Func<string>? rightText, string? fieldID = null, bool rightHover = false, bool leftHover = false, Func<string>? hoverText = null)
+        public ButtonOptions(Func<string>? leftText, Func<string>? rightText, string? fieldID = null)
         {
             this.leftText = leftText ?? (() => "");
             this.rightText = rightText ?? (() => "");
             this.fieldID = fieldID ?? "";
-            this.renderRightHover = rightHover;
-            this.renderLeftHover = leftHover;
-            this.hoverText = hoverText;
+            //this.renderRightHover = rightHover;
+            //this.renderLeftHover = leftHover;
+            //this.hoverText = hoverText;
             CalculateTextMeasurements();
         }
 
@@ -125,13 +126,13 @@ namespace Common.Util
                 Game1.playSound("shiny4");
             }
 
-            bool isLeftHoveredNow = IsHovered(drawPos, LeftTextWidth, LeftTextHeight);
+            //bool isLeftHoveredNow = IsHovered(drawPos, LeftTextWidth, LeftTextHeight);
 
             isRightHovered = isRightHoveredNow;
             wasRightHoveredPreviously = isRightHoveredNow;
 
-            isLeftHovered = isLeftHoveredNow;
-            wasLeftHoveredPreviously = isLeftHoveredNow;
+            //isLeftHovered = isLeftHoveredNow;
+            //wasLeftHoveredPreviously = isLeftHoveredNow;
 
             storedValues = (top, left);
         }
