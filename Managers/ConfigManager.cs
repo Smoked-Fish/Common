@@ -151,15 +151,15 @@ namespace Common.Managers
         }
 
 #if EnableCommonPatches
-        public static void AddButtonOption(string leftText, string rightText, string? fieldId = null, bool rightHover = false, bool leftHover = false, string? hoverText = null)
+        public static void AddButtonOption(string leftText, string rightText, string? fieldId = null, Action? afterReset = null)
         {
             if (!AreConfigObjectsInitialized()) return;
 
             Func<string> leftTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{leftText}.Title");
             Func<string> rightTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{rightText}.Button");
-            Func<string>? hoverTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
+            //Func<string>? hoverTextLocalized = () => TranslationHelper.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
 
-            var buttonOption = new ButtonOptions(leftText: leftTextLocalized, rightText: rightTextLocalized, fieldID: fieldId, rightHover: rightHover, leftHover: leftHover, hoverText: hoverTextLocalized);
+            var buttonOption = new ButtonOptions(leftText: leftTextLocalized, rightText: rightTextLocalized, fieldID: fieldId);
 
             ConfigApi!.AddComplexOption(
                 mod: _manifest!,
@@ -168,7 +168,7 @@ namespace Common.Managers
                 height: () => buttonOption.RightTextHeight,
                 beforeMenuOpened: () => { },
                 beforeSave: () => { },
-                afterReset: () => { },
+                afterReset: () => { afterReset?.Invoke(); },
                 fieldId: fieldId
             );
         }
