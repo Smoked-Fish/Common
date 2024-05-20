@@ -20,13 +20,13 @@ namespace Common.Managers
             _translations = translations;
         }
 
-        public static Translation GetByKey(string key)
+        public static Translation GetByKey(string key, object? tokens = null)
         {
             if (_translations == null)
             {
                 throw new InvalidOperationException("TranslationHelper is not initialized.");
             }
-            return _translations.Get(key);
+            return _translations.Get(key, tokens);
         }
     }
 
