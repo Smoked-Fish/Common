@@ -23,9 +23,8 @@ namespace Common.Managers
         public static Translation GetByKey(string key, object? tokens = null)
         {
             if (_translations == null)
-            {
                 throw new InvalidOperationException("TranslationHelper is not initialized.");
-            }
+
             return _translations.Get(key, tokens);
         }
     }
