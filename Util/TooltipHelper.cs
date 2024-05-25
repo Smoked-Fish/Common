@@ -45,8 +45,8 @@ namespace Common.Util
 
         private static void DrawPostfix(SpriteBatch b)
         {
-            ConfigManager.ConfigApi!.TryGetCurrentMenu(out IManifest test, out string _);
-            if (test.UniqueID != ConfigManager.Manifest!.UniqueID) return;
+            ConfigManager.ConfigApi!.TryGetCurrentMenu(out IManifest manifest, out string _);
+            if (manifest.UniqueID != ConfigManager.Manifest!.UniqueID) return;
 
             var title = Title;
             var text = Body;
