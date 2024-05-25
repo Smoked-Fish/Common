@@ -14,6 +14,7 @@ namespace Common.Util
 
         private readonly Harmony _harmony;
         private readonly IMonitor _monitor;
+
         internal PageHelper(Harmony harmony, IMonitor monitor)
         {
             _harmony = harmony;
