@@ -30,14 +30,5 @@ namespace Common.Managers
 
             return _translations.Get(key, tokens);
         }
-
-
-        public static Translation HASHTEST(string key, object? tokens = null)
-        {
-            if (_translations == null)
-                throw new InvalidOperationException("I18n is not initialized.");
-
-            return _translations.Get(key, tokens);
-        }
     }
 }
