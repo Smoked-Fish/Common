@@ -28,9 +28,9 @@ namespace Common.Helpers
                         continue;
                     }
 
-                    if (property.PropertyType == typeof(KeybindList) && defaultValue is SButton)
+                    if (property.PropertyType == typeof(KeybindList) && defaultValue is SButton button)
                     {
-                        defaultValue = new KeybindList((SButton)defaultValue);
+                        defaultValue = new KeybindList(button);
                     }
 
                     // Handle list default value
@@ -92,29 +92,16 @@ namespace Common.Helpers
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public class DefaultValueAttribute : Attribute
+    public class DefaultValueAttribute(object value, string category = null) : Attribute
     {
-        public object Value { get; }
-        public string Category { get; }
-
-        public DefaultValueAttribute(object value, string category = null)
-        {
-            Value = value;
-            Category = category;
-        }
+        public object Value { get; } = value;
+        public string Category { get; } = category;
     }
 
-    public class ConfigChangedEventArgs : EventArgs
+    public class ConfigChangedEventArgs(string configName, object oldValue, object newValue) : EventArgs
     {
-        public string ConfigName { get; }
-        public object OldValue { get; }
-        public object NewValue { get; }
-
-        public ConfigChangedEventArgs(string configName, object oldValue, object newValue)
-        {
-            ConfigName = configName;
-            OldValue = oldValue;
-            NewValue = newValue;
-        }
+        public string ConfigName { get; } = configName;
+        public object OldValue { get; } = oldValue;
+        public object NewValue { get; } = newValue;
     }
 }
