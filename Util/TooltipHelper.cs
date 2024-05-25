@@ -6,6 +6,7 @@ using StardewModdingAPI;
 using StardewValley.Menus;
 using StardewValley;
 using System;
+using Common.Managers;
 
 namespace Common.Util
 {
@@ -44,6 +45,9 @@ namespace Common.Util
 
         private static void DrawPostfix(SpriteBatch b)
         {
+            ConfigManager.ConfigApi!.TryGetCurrentMenu(out IManifest test, out string _);
+            if (test.UniqueID != ConfigManager.Manifest!.UniqueID) return;
+
             var title = Title;
             var text = Body;
             var hover = Hover;
