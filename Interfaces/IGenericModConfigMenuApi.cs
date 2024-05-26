@@ -6,7 +6,6 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using System;
 
-
 namespace Common.Interfaces
 {
     /// <summary>The API which lets other mods add a config UI through Generic Mod Config Menu.</summary>
