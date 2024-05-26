@@ -26,7 +26,6 @@ namespace Common.Interfaces
         /// <remarks>Each mod can only be registered once, unless it's deleted via <see cref="Unregister"/> before calling this again.</remarks>
         void Register(IManifest mod, Action reset, Action save, bool titleScreenOnly = false);
 
-
         /****
         ** Basic options
         ****/
@@ -112,7 +111,6 @@ namespace Common.Interfaces
         /// <param name="fieldId">The unique field ID for use with <see cref="OnFieldChanged"/>, or <c>null</c> to auto-generate a randomized ID.</param>
         void AddKeybindList(IManifest mod, Func<KeybindList> getValue, Action<KeybindList> setValue, Func<string> name, Func<string>? tooltip = null, string? fieldId = null);
 
-
         /****
         ** Multi-page management
         ****/
@@ -129,7 +127,6 @@ namespace Common.Interfaces
         /// <param name="text">The link text shown in the form.</param>
         /// <param name="tooltip">The tooltip text shown when the cursor hovers on the link, or <c>null</c> to disable the tooltip.</param>
         void AddPageLink(IManifest mod, string pageId, Func<string> text, Func<string>? tooltip = null);
-
 
         /****
         ** Advanced

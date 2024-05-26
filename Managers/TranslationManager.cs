@@ -14,7 +14,6 @@ namespace Common.Managers
             _translations = translations;
         }
 
-
         public static Translation Message(string key, object? tokens = null)
         {
             if (_translations == null)

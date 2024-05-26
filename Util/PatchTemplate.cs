@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using System;
 
-
 namespace Common.Util
 {
     internal class PatchTemplate
