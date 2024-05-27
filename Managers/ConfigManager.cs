@@ -1,35 +1,26 @@
 ﻿#nullable enable
 using Common.Interfaces;
-using HarmonyLib;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using System;
 using System.Reflection;
 using Common.Helpers;
 
-#if EnableCommonPatches
-using Common.Util;
-#endif
-
 namespace Common.Managers
 {
-    /*
-    <DefineConstants>EnableCommonPatches</DefineConstants>
-    <EnableCommonPatches>true</EnableCommonPatches>
-    */
-    public static class ConfigManager
+    public static partial class ConfigManager
     {
+        // Properties
+        public static IGenericModConfigMenuApi? ConfigApi { get; private set; }
+        public static IManifest? Manifest { get; private set; }
+        public static IMonitor? Monitor { get; private set; }
+        public static string? ModNamespace { get; set; }
+
         // Fields
         private static IModHelper? _helper;
         private static IConfigurable? _config;
 
-        // Properties
-        public static IGenericModConfigMenuApi? ConfigApi { get; private set; }
-        public static IManifest? Manifest {  get; private set; }
-        public static IMonitor? Monitor { get; private set; }
-        public static string? ModNamespace { get; set; }
-
-        public static void Initialize(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor, Harmony? harmony = null)
+        public static void Initialize(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor, object? harmony = null)
         {
             _helper = helper ?? throw new ArgumentNullException(nameof(helper));
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -42,10 +33,10 @@ namespace Common.Managers
             ConfigApi?.Register(manifest, resetAction, saveAction);
 
             I18n.Init(helper.Translation);
-            
-#if EnableCommonPatches
+
+            #if EnableCommonPatches
             EnablePatches(harmony);
-#endif
+            #endif
         }
 
         public static void AddOption(string name)
@@ -125,51 +116,6 @@ namespace Common.Managers
 
             ConfigApi!.OnFieldChanged(Manifest!, onChange);
         }
-
-#if EnableCommonPatches
-        public static void AddButtonOption(string leftText, string rightText, string? fieldId = null, Action? afterReset = null)
-        {
-            if (!AreConfigObjectsInitialized()) return;
-
-            Func<string> leftTextLocalized = () => I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{leftText}.Title");
-            Func<string> rightTextLocalized = () => I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{rightText}.Button");
-            //Func<string>? hoverTextLocalized = () => I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
-
-            var buttonOption = new ButtonOptions(leftText: leftTextLocalized, rightText: rightTextLocalized, fieldID: fieldId);
-
-            ConfigApi!.AddComplexOption(
-                mod: Manifest!,
-                name: () => "",
-                draw: buttonOption.Draw,
-                height: () => buttonOption.RightTextHeight,
-                beforeMenuOpened: () => { },
-                beforeSave: () => { },
-                afterReset: () => { afterReset?.Invoke(); },
-                fieldId: fieldId
-            );
-        }
-
-        public static void AddHorizontalSeparator()
-        {
-            if (!AreConfigObjectsInitialized()) return;
-
-            var separatorOption = new SeparatorOptions();
-            ConfigApi!.AddComplexOption(
-                mod: Manifest!,
-                name: () => "",
-                draw: separatorOption.Draw);
-        }
-
-        private static void EnablePatches(Harmony? harmony = null)
-        {
-
-            if (ConfigApi != null && harmony != null && Monitor != null)
-            {
-                new PageHelper(harmony, Monitor).Apply();
-                new TooltipHelper(harmony, Monitor).Apply();
-            }
-        }
-#endif
 
         // Helper Methods
         private static bool AreConfigObjectsInitialized()
