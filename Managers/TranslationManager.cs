@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using StardewModdingAPI;
-using StardewValley;
 using System;
 
 namespace Common.Managers
@@ -13,7 +12,6 @@ namespace Common.Managers
         {
             _translations = translations;
         }
-
 
         public static Translation Message(string key, object? tokens = null)
         {
