@@ -42,7 +42,6 @@ namespace Common.Helpers
                         defaultValue = Activator.CreateInstance(listType);
                     }
 
-
                     OnConfigChanged(config, property.Name, property.GetValue(config), defaultValue);
                     property.SetValue(config, defaultValue);
                 }
