@@ -1,49 +1,78 @@
-﻿using HarmonyLib;
+﻿#if EnableHarmony
+#nullable enable
+using HarmonyLib;
+using System.Reflection;
 using System;
 
 namespace Common.Util
 {
     internal class PatchTemplate
     {
-        internal static Harmony _harmony;
-        internal static Type _object;
+        internal static Harmony? _harmony;
+        internal static Type? _object;
 
-        internal PatchTemplate(Harmony modHarmony, Type objectType)
+        internal PatchTemplate(Harmony harmonyInstance, Type? objectType = null)
         {
-            _harmony = modHarmony;
+            _harmony = harmonyInstance ?? throw new ArgumentNullException(nameof(harmonyInstance), "Harmony instance cannot be null.");
             _object = objectType;
         }
 
         /// <summary>
         /// Applies method patches using Harmony for a specified target method.
         /// </summary>
-        /// <param name="patchType">The type of patch to apply: Prefix, Postfix, or Transpiler.</param>
-        /// <param name="originalMethod">The name of the original method to patch.</param>
-        /// <param name="newMethod">The name of the method to be applied as a patch.</param>
-        /// <param name="parameters">Optional parameters for the method.</param>
-        public void Patch(PatchType patchType, string originalMethod, string newMethod, Type[] parameters = null)
+        public void Patch(PatchType patchType, string originalMethod, string newMethod, Type[]? parameters = null)
         {
             try
             {
-                switch (patchType)
-                {
-                    case PatchType.Prefix:
-                        _harmony.Patch(AccessTools.Method(_object, originalMethod, parameters), prefix: new HarmonyMethod(GetType(), newMethod));
-                        break;
-                    case PatchType.Postfix:
-                        _harmony.Patch(AccessTools.Method(_object, originalMethod, parameters), postfix: new HarmonyMethod(GetType(), newMethod));
-                        break;
-                    case PatchType.Transpiler:
-                        _harmony.Patch(AccessTools.Method(_object, originalMethod, parameters), transpiler: new HarmonyMethod(GetType(), newMethod));
-                        break;
-                    default:
-                        throw new ArgumentException($"Unknown patch type: {patchType}");
-                }
+                MethodInfo targetMethod = _object != null ? AccessTools.Method(_object, originalMethod, parameters) : AccessTools.Method(originalMethod, parameters);
+                HarmonyMethod harmonyMethod = new HarmonyMethod(GetType(), newMethod);
+
+                ApplyPatch(patchType, targetMethod, harmonyMethod);
             }
             catch (Exception e)
             {
-                string errorMessage = $"Issue with Harmony patching for method {originalMethod} with {newMethod}: {e}";
-                throw new Exception(errorMessage, e);
+                throw new Exception($"Error occurred while patching method {originalMethod} with {newMethod}: {e.Message}", e);
+            }
+        }
+
+        /// <summary>
+        /// Applies constructor patches using Harmony for a specified target method.
+        /// </summary>
+        public void ConstructorPatch(PatchType patchType, string originalMethod, string newMethod, Type[]? parameters = null)
+        {
+            try
+            {
+                ConstructorInfo targetConstructor = AccessTools.Constructor(AccessTools.TypeByName(originalMethod), parameters);
+                HarmonyMethod harmonyMethod = new HarmonyMethod(GetType(), newMethod);
+
+                ApplyPatch(patchType, targetConstructor, harmonyMethod);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error occurred while patching constructor {originalMethod} with {newMethod}: {e.Message}", e);
+            }
+        }
+
+        private static void ApplyPatch(PatchType patchType, MethodBase targetMethod, HarmonyMethod harmonyMethod)
+        {
+            if (_harmony == null)
+            {
+                throw new InvalidOperationException("Harmony instance is null. Make sure to initialize PatchTemplate with a valid Harmony instance.");
+            }
+
+            switch (patchType)
+            {
+                case PatchType.Prefix:
+                    _harmony.Patch(targetMethod, prefix: harmonyMethod);
+                    break;
+                case PatchType.Postfix:
+                    _harmony.Patch(targetMethod, postfix: harmonyMethod);
+                    break;
+                case PatchType.Transpiler:
+                    _harmony.Patch(targetMethod, transpiler: harmonyMethod);
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown patch type: {patchType}", nameof(patchType));
             }
         }
 
@@ -55,3 +84,4 @@ namespace Common.Util
         }
     }
 }
+#endif
