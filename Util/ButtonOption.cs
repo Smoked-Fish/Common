@@ -21,15 +21,16 @@ namespace Common.Util
         // Fields
         private readonly Func<string> leftText;
         private readonly Func<string> rightText;
-        //private readonly Func<string>? hoverText;
+        private readonly Func<string>? descText;
+        private readonly Func<string>? hoverText;
+        private readonly bool renderLeft;
+        private readonly bool renderRight;
         private readonly string fieldID;
 
-        //private readonly bool renderRightHover = false;
-        //private readonly bool renderLeftHover = false;
         private bool isRightHovered = false;
         private bool wasRightHoveredPreviously = false;
-        //private bool isLeftHovered = false;
-        //private bool wasLeftHoveredPreviously = false;
+        private bool isLeftHovered = false;
+        private bool wasLeftHoveredPreviously = false;
         private ButtonState lastButtonState;
         private (int Top, int Left) storedValues;
         private const double ClickCooldown = 0.1;
@@ -45,14 +46,15 @@ namespace Common.Util
         public static Action<ButtonClickEventArgs>? Click { get; set; }
 
         // Constructor
-        public ButtonOptions(Func<string>? leftText, Func<string>? rightText, string? fieldID = null)
+        public ButtonOptions(Func<string> leftText, Func<string> rightText, Func<string>? descText = null, Func<string>? hoverText = null, bool renderLeft = false, bool renderRight = false, string? fieldID = null)
         {
-            this.leftText = leftText ?? (() => "");
-            this.rightText = rightText ?? (() => "");
-            this.fieldID = fieldID ?? "";
-            //this.renderRightHover = rightHover;
-            //this.renderLeftHover = leftHover;
-            //this.hoverText = hoverText;
+            this.leftText = leftText;
+            this.rightText = rightText;
+            this.descText = descText;
+            this.hoverText = hoverText;
+            this.renderLeft = renderLeft;
+            this.renderRight = renderRight;
+            this.fieldID = fieldID ?? leftText();
             CalculateTextMeasurements();
         }
 
@@ -63,7 +65,6 @@ namespace Common.Util
             RightTextWidth = (int)Game1.dialogueFont.MeasureString(Game1.parseText(rightText(), Game1.dialogueFont, 800)).X;
             RightTextHeight = (int)Game1.dialogueFont.MeasureString(Game1.parseText(rightText(), Game1.dialogueFont, 800)).Y;
 
-            // TODO FIX
             LeftTextWidth = (int)MeasureString(leftText(), true).X;
             LeftTextHeight = (int)MeasureString(leftText(), true).Y;
         }
@@ -80,10 +81,10 @@ namespace Common.Util
             double currentTime = Game1.currentGameTime.TotalGameTime.TotalSeconds;
             if (currentTime - lastClickTime >= ClickCooldown)
             {
-                //Game1.playSound("backpackIN");
                 Click?.Invoke(new ButtonClickEventArgs(fieldId));
                 lastClickTime = currentTime;
-            } else
+            }
+            else
             {
                 Game1.playSound("thudStep");
             }
@@ -119,20 +120,19 @@ namespace Common.Util
             int left = gmcmLeft;
 
             bool isRightHoveredNow = IsHovered(drawPos, RightTextWidth, RightTextHeight);
+            bool isLeftHoveredNow = IsHovered(new Vector2(left, top), LeftTextWidth, LeftTextHeight);
 
             // Play hover sound effect if the button is hovered over
-            if (isRightHoveredNow && !wasRightHoveredPreviously)
+            if ((isRightHoveredNow && !wasRightHoveredPreviously) || (isLeftHoveredNow && !wasLeftHoveredPreviously))
             {
                 Game1.playSound("shiny4");
             }
 
-            //bool isLeftHoveredNow = IsHovered(drawPos, LeftTextWidth, LeftTextHeight);
-
             isRightHovered = isRightHoveredNow;
             wasRightHoveredPreviously = isRightHoveredNow;
 
-            //isLeftHovered = isLeftHoveredNow;
-            //wasLeftHoveredPreviously = isLeftHoveredNow;
+            isLeftHovered = isLeftHoveredNow;
+            wasLeftHoveredPreviously = isLeftHoveredNow;
 
             storedValues = (top, left);
         }
@@ -153,10 +153,15 @@ namespace Common.Util
                 Vector2 leftTextPosition = new(storedValues.Left - 8, storedValues.Top);
                 SpriteText.drawString(b, leftText(), (int)leftTextPosition.X, (int)leftTextPosition.Y, layerDepth: 1f, color: new Color?());
 
-
-                // TODO FIX HOVER
-                //TooltipHelper.Hover = hoverText!();
-
+                if (renderRight && hoverText != null && hoverText() != null && isRightHovered)
+                {
+                    TooltipHelper.Hover = hoverText();
+                }
+                if ((renderRight && isRightHovered) || (renderLeft && isLeftHovered))
+                {
+                    TooltipHelper.Title = leftText!();
+                    TooltipHelper.Body = descText!();
+                }
             }
             catch (Exception e)
             {
