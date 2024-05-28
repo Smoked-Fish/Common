@@ -1,6 +1,4 @@
 ﻿namespace Common.Interfaces
 {
-    public interface IConfigurable
-    {
-    }
+    public interface IConfigurable;
 }
