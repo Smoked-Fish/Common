@@ -12,9 +12,9 @@ namespace Common.Managers
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            Func<string> leftTextLocalized = () => I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{leftText}.Title");
-            Func<string> rightTextLocalized = () => I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{rightText}.Button");
-            //Func<string>? hoverTextLocalized = () => I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{hoverText}.Description");
+            Func<string> leftTextLocalized = () => I18n.GetByKey($"Config.{ModNamespace}.{leftText}.Title");
+            Func<string> rightTextLocalized = () => I18n.GetByKey($"Config.{ModNamespace}.{rightText}.Button");
+            //Func<string>? hoverTextLocalized = () => I18n.GetByKey($"Config.{ModNamespace}.{hoverText}.Description");
 
             var buttonOption = new ButtonOptions(leftText: leftTextLocalized, rightText: rightTextLocalized, fieldID: fieldId);
 
@@ -43,10 +43,10 @@ namespace Common.Managers
         
         private static void EnablePatches(object? harmony)
         {
-            if (ConfigApi != null && harmony is Harmony realHarmony && Monitor != null)
+            if (ConfigApi != null && harmony is Harmony realHarmony)
             {
-                new PageHelper(realHarmony, Monitor).Apply();
-                new TooltipHelper(realHarmony, Monitor).Apply();
+                new PageHelper(realHarmony).Apply();
+                new TooltipHelper(realHarmony).Apply();
             }
         }
     }
