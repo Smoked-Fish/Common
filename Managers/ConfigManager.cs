@@ -15,6 +15,7 @@ namespace Common.Managers
         public static IManifest? Manifest { get; private set; }
         public static IMonitor? Monitor { get; private set; }
         public static string? ModNamespace { get; set; }
+        public static Action SaveAction => saveAction;
 
         // Fields
         private static IModHelper? _helper;
