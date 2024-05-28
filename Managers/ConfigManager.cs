@@ -1,10 +1,10 @@
 ﻿#nullable enable
-using Common.Interfaces;
-using Common.Utilities;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
-using System;
+using Common.Interfaces;
+using Common.Utilities;
 using System.Reflection;
+using System;
 
 namespace Common.Managers
 {

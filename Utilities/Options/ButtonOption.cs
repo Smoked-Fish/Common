@@ -1,13 +1,13 @@
 ﻿#if EnableCommonPatches
 #nullable enable
-using Common.Helpers;
-using Common.Managers;
+using StardewValley;
+using StardewModdingAPI;
+using StardewValley.BellsAndWhistles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using StardewModdingAPI;
-using StardewValley;
-using StardewValley.BellsAndWhistles;
+using Common.Helpers;
+using Common.Managers;
 using System;
 
 namespace Common.Utilities.Options

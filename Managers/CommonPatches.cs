@@ -1,8 +1,8 @@
 ﻿#if EnableCommonPatches
 #nullable enable
+using HarmonyLib;
 using Common.Utilities.Options;
 using Common.Helpers;
-using HarmonyLib;
 using System;
 
 namespace Common.Managers

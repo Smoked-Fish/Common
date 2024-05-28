@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using StardewModdingAPI;
-using System;
 using System.Collections.Generic;
+using System;
 
 namespace Common.Managers
 {

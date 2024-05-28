@@ -1,9 +1,9 @@
 ﻿#if EnableCommonPatches
 #nullable enable
 using HarmonyLib;
-using Microsoft.Xna.Framework.Graphics;
-using StardewValley.Menus;
 using StardewValley;
+using StardewValley.Menus;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Common.Helpers
 {
