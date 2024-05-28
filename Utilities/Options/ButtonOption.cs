@@ -1,5 +1,6 @@
 ﻿#if EnableCommonPatches
 #nullable enable
+using Common.Helpers;
 using Common.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,14 +10,14 @@ using StardewValley;
 using StardewValley.BellsAndWhistles;
 using System;
 
-namespace Common.Util
+namespace Common.Utilities.Options
 {
-    public class ButtonClickEventArgs(string fieldID)
+    public class ButtonClickEventData(string fieldID)
     {
         public string FieldID { get; } = fieldID;
     }
 
-    internal class ButtonOptions
+    internal sealed class ButtonOptions
     {
         // Fields
         private readonly Func<string> leftText;
@@ -27,14 +28,14 @@ namespace Common.Util
         private readonly bool renderRight;
         private readonly string fieldID;
 
-        private bool isRightHovered = false;
-        private bool wasRightHoveredPreviously = false;
-        private bool isLeftHovered = false;
-        private bool wasLeftHoveredPreviously = false;
+        private bool isRightHovered;
+        private bool wasRightHoveredPreviously;
+        private bool isLeftHovered;
+        private bool wasLeftHoveredPreviously;
         private ButtonState lastButtonState;
         private (int Top, int Left) storedValues;
         private const double ClickCooldown = 0.1;
-        private static double lastClickTime = 0;
+        private static double lastClickTime;
 
         // Properties
         public int RightTextWidth { get; private set; }
@@ -43,7 +44,7 @@ namespace Common.Util
         public int LeftTextHeight { get; private set; }
 
         // Events
-        public static Action<ButtonClickEventArgs>? Click { get; set; }
+        public static Action<ButtonClickEventData>? Click { get; set; }
 
         // Constructor
         public ButtonOptions(Func<string> leftText, Func<string> rightText, Func<string>? descText = null, Func<string>? hoverText = null, bool renderLeft = false, bool renderRight = false, string? fieldID = null)
@@ -72,7 +73,7 @@ namespace Common.Util
         // Measure the width and height of a string
         private static Vector2 MeasureString(string text, bool bold = false, float scale = 1f, SpriteFont? font = null)
         {
-            return bold ? new Vector2((float)SpriteText.getWidthOfString(text) * scale, (float)SpriteText.getHeightOfString(text) * scale) : (font ?? Game1.dialogueFont).MeasureString(text) * scale;
+            return bold ? new Vector2(SpriteText.getWidthOfString(text) * scale, SpriteText.getHeightOfString(text) * scale) : (font ?? Game1.dialogueFont).MeasureString(text) * scale;
         }
 
         // Handle the button click event
@@ -81,7 +82,7 @@ namespace Common.Util
             double currentTime = Game1.currentGameTime.TotalGameTime.TotalSeconds;
             if (currentTime - lastClickTime >= ClickCooldown)
             {
-                Click?.Invoke(new ButtonClickEventArgs(fieldId));
+                Click?.Invoke(new ButtonClickEventData(fieldId));
                 lastClickTime = currentTime;
             }
             else

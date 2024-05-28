@@ -3,9 +3,9 @@
 using HarmonyLib;
 using System;
 
-namespace Common.Util
+namespace Common.Helpers
 {
-    internal class PageHelper : PatchTemplate
+    internal sealed class PageHelper : PatchHelper
     {
         public static Action<string>? OpenPage { get; set; }
         public static string? CurrPage { get; set; }

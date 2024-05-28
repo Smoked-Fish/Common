@@ -1,4 +1,5 @@
-﻿using StardewModdingAPI.Utilities;
+﻿#nullable disable
+using StardewModdingAPI.Utilities;
 using StardewModdingAPI;
 using Common.Interfaces;
 using Common.Managers;
@@ -6,7 +7,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System;
 
-namespace Common.Helpers
+namespace Common.Utilities
 {
     public static class ConfigUtilities
     {

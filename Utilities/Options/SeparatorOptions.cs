@@ -5,9 +5,9 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System;
 
-namespace Common.Util
+namespace Common.Utilities.Options
 {
-    internal class SeparatorOptions
+    internal static class SeparatorOptions
     {
         private const int SeparatorHeight = 3;
 
@@ -21,7 +21,7 @@ namespace Common.Util
         }
 
         // Draw method to draw the separator
-        public void Draw(SpriteBatch spriteBatch, Vector2 position)
+        public static void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
             // Calculate position and width
             int top = (int)position.Y;

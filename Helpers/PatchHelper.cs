@@ -3,15 +3,17 @@
 using HarmonyLib;
 using System.Reflection;
 using System;
+using System.ComponentModel;
+using Common.Utilities.Exceptions;
 
-namespace Common.Util
+namespace Common.Helpers
 {
-    internal class PatchTemplate
+    public class PatchHelper
     {
         internal static Harmony? _harmony;
         internal static Type? _object;
 
-        internal PatchTemplate(Harmony harmonyInstance, Type? objectType = null)
+        internal PatchHelper(Harmony harmonyInstance, Type? objectType = null)
         {
             _harmony = harmonyInstance ?? throw new ArgumentNullException(nameof(harmonyInstance), "Harmony instance cannot be null.");
             _object = objectType;
@@ -25,13 +27,13 @@ namespace Common.Util
             try
             {
                 MethodInfo targetMethod = _object != null ? AccessTools.Method(_object, originalMethod, parameters) : AccessTools.Method(originalMethod, parameters);
-                HarmonyMethod harmonyMethod = new HarmonyMethod(GetType(), newMethod);
+                HarmonyMethod harmonyMethod = new(GetType(), newMethod);
 
                 ApplyPatch(patchType, targetMethod, harmonyMethod);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception($"Error occurred while patching method {originalMethod} with {newMethod}: {e.Message}", e);
+                throw new PatchingException(originalMethod, newMethod, ex);
             }
         }
 
@@ -43,13 +45,13 @@ namespace Common.Util
             try
             {
                 ConstructorInfo targetConstructor = AccessTools.Constructor(AccessTools.TypeByName(originalMethod), parameters);
-                HarmonyMethod harmonyMethod = new HarmonyMethod(GetType(), newMethod);
+                HarmonyMethod harmonyMethod = new(GetType(), newMethod);
 
                 ApplyPatch(patchType, targetConstructor, harmonyMethod);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                throw new Exception($"Error occurred while patching constructor {originalMethod} with {newMethod}: {e.Message}", e);
+                throw new PatchingException(originalMethod, newMethod, ex);
             }
         }
 
@@ -57,7 +59,7 @@ namespace Common.Util
         {
             if (_harmony == null)
             {
-                throw new InvalidOperationException("Harmony instance is null. Make sure to initialize PatchTemplate with a valid Harmony instance.");
+                throw new InstanceNullException("Harmony instance is null. Make sure to initialize PatchTemplate with a valid Harmony instance.");
             }
 
             switch (patchType)
@@ -72,7 +74,7 @@ namespace Common.Util
                     _harmony.Patch(targetMethod, transpiler: harmonyMethod);
                     break;
                 default:
-                    throw new ArgumentException($"Unknown patch type: {patchType}", nameof(patchType));
+                    throw new InvalidEnumArgumentException($"Unknown enum PatchType: {patchType}");
             }
         }
 
