@@ -1,10 +1,10 @@
 ﻿#nullable enable
+using Common.Helpers;
 using Common.Interfaces;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using System;
 using System.Reflection;
-using Common.Helpers;
 
 namespace Common.Managers
 {
@@ -90,8 +90,8 @@ namespace Common.Managers
             if (!AreConfigObjectsInitialized()) return;
 
             ConfigApi!.AddSectionTitle(Manifest!,
-                () => I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{title}.Title") ?? title,
-                () => tooltip != null ? I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{tooltip}.Description") ?? tooltip : null!);
+                () => I18n.GetByKey($"Config.{ModNamespace}.{title}.Title") ?? title,
+                () => tooltip != null ? I18n.GetByKey($"Config.{ModNamespace}.{tooltip}.Description") ?? tooltip : null!);
         }
 
         public static void AddPageLink(string name, string? tooltip = null)
@@ -99,15 +99,15 @@ namespace Common.Managers
             if (!AreConfigObjectsInitialized()) return;
 
             ConfigApi!.AddPageLink(Manifest!, name,
-                () => string.Concat("> ", I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Title") ?? name),
-                () => tooltip != null ? I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Description") ?? name : null!);
+                () => string.Concat("> ", I18n.GetByKey($"Config.{ModNamespace}.{name}.Title") ?? name),
+                () => tooltip != null ? I18n.GetByKey($"Config.{ModNamespace}.{name}.Description") ?? name : null!);
         }
 
         public static void AddPage(string name)
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            ConfigApi!.AddPage(Manifest!, name, () => I18n.GetByKey($"Config.{_config!.GetType().Namespace}.{name}.Title") ?? name);
+            ConfigApi!.AddPage(Manifest!, name, () => I18n.GetByKey($"Config.{ModNamespace}.{name}.Title") ?? name);
         }
 
         public static void OnFieldChanged(Action<string, object> onChange)
