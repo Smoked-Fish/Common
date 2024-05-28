@@ -46,6 +46,8 @@ namespace Common.Helpers
                     property.SetValue(config, defaultValue);
                 }
             }
+
+            ConfigManager.SaveAction.Invoke();
         }
 
         public static void SetConfig(IConfigurable config, string propertyName, object value)
