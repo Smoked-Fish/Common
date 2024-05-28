@@ -9,8 +9,10 @@
   </PropertyGroup>
 
     <!-- Compilation constants -->
-  <PropertyGroup Condition="'$(CommonPatches)' == 'true'">
-    <DefineConstants>EnableCommonPatches</DefineConstants>
+  <PropertyGroup>
+    <DefineConstants Condition="'$(CommonPatches)' == 'true' And '$(EnableHarmony)' == 'true'">EnableCommonPatches;EnableHarmony</DefineConstants>
+    <DefineConstants Condition="'$(CommonPatches)' == 'true' And '$(EnableHarmony)' != 'true'">EnableCommonPatches</DefineConstants>
+    <DefineConstants Condition="'$(EnableHarmony)' == 'true' And '$(CommonPatches)' != 'true'">EnableHarmony</DefineConstants>
   </PropertyGroup>
 
   <!-- Remove unnecessary files -->
