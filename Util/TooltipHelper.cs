@@ -1,52 +1,29 @@
-﻿#nullable enable
-#if EnableCommonPatches
+﻿#if EnableCommonPatches
+#nullable enable
 using HarmonyLib;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
 using StardewValley.Menus;
 using StardewValley;
-using System;
-using Common.Managers;
 
 namespace Common.Util
 {
-    public class TooltipHelper
+    internal class TooltipHelper : PatchTemplate
     {
         public static string? Title { get; set; }
         public static string? Body { get; set; }
         public static string? Hover { get; set; }
 
-        private readonly Harmony _harmony;
-        private readonly IMonitor _monitor;
-
-        internal TooltipHelper(Harmony harmony, IMonitor monitor)
-        {
-            _harmony = harmony;
-            _monitor = monitor;
-        }
+        internal TooltipHelper(Harmony harmony) : base(harmony) { }
 
         public void Apply()
         {
-            try
-            {
-                string method = "GenericModConfigMenu.Framework.SpecificModConfigMenu:draw";
-                Type[] parameters = [typeof(SpriteBatch)];
-
-                _harmony.Patch(
-                    original: AccessTools.Method(method, parameters),
-                    postfix: new HarmonyMethod(typeof(TooltipHelper), nameof(DrawPostfix)));
-            }
-            catch (Exception e)
-            {
-                string errorMessage = $"Issue with Harmony patching GenericModConfigMenu.Framework.SpecificModConfigMenu:draw: {e}";
-                _monitor.Log(errorMessage, LogLevel.Error);
-            }
+            Patch(PatchType.Postfix, "GenericModConfigMenu.Framework.SpecificModConfigMenu:draw", nameof(DrawPostfix), [typeof(SpriteBatch)]);
         }
 
         private static void DrawPostfix(SpriteBatch b)
         {
-            ConfigManager.ConfigApi!.TryGetCurrentMenu(out IManifest manifest, out string _);
-            if (manifest.UniqueID != ConfigManager.Manifest!.UniqueID) return;
+            /*ConfigManager.ConfigApi!.TryGetCurrentMenu(out IManifest manifest, out string _);
+            if (manifest.UniqueID != ConfigManager.Manifest!.UniqueID) return;*/
 
             var title = Title;
             var text = Body;
