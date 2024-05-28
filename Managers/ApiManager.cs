@@ -8,9 +8,12 @@ namespace Common.Managers
     public class ApiManager(IModHelper helper, IMonitor monitor)
     {
         private readonly Dictionary<Type, object> _apis = [];
-        readonly IModHelper _helper = helper;
-        readonly IMonitor _monitor = monitor;
+        private readonly IModHelper _helper = helper;
+        private readonly IMonitor _monitor = monitor;
 
+        /// <summary>
+        /// Retrieves an instance of the specified API type from the mod registry.
+        /// </summary>
         public T? GetApi<T>(string apiName, bool logError = true) where T : class
         {
             try
@@ -24,14 +27,7 @@ namespace Common.Managers
 
                 if (api == null)
                 {
-                    if (logError)
-                    {
-                        _monitor.Log($"Failed to hook into {apiName}.", LogLevel.Error);
-                    }
-                    else
-                    {
-                        _monitor.Log($"Failed to hook into {apiName}.", LogLevel.Trace);
-                    }
+                    _monitor.Log($"Failed to hook into {apiName}.", logError ? LogLevel.Error : LogLevel.Trace);
                     return null;
                 }
 
