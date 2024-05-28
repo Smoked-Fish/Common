@@ -1,5 +1,5 @@
-﻿#nullable enable
-#if EnableCommonPatches
+﻿#if EnableCommonPatches
+#nullable enable
 using Common.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
