@@ -1,6 +1,6 @@
 ﻿#nullable enable
-using Common.Helpers;
 using Common.Interfaces;
+using Common.Utilities;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using System;
@@ -100,7 +100,7 @@ namespace Common.Managers
             if (!AreConfigObjectsInitialized()) return;
 
             ConfigApi!.AddPageLink(Manifest!, name,
-                () => string.Concat("> ", I18n.GetByKey($"Config.{ModNamespace}.{name}.Title") ?? name),
+                () => $"> {I18n.GetByKey($"Config.{ModNamespace}.{name}.Title") ?? name}",
                 () => tooltip != null ? I18n.GetByKey($"Config.{ModNamespace}.{name}.Description") ?? name : null!);
         }
 
@@ -123,7 +123,7 @@ namespace Common.Managers
         {
             if (ConfigApi == null || _config == null || Manifest == null)
             {
-                Monitor?.LogOnce($"Error: Configuration objects not initialized.", LogLevel.Error);
+                Monitor?.LogOnce("Error: Configuration objects not initialized.", LogLevel.Error);
                 return false;
             }
             return true;
