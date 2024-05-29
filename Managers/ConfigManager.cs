@@ -1,27 +1,34 @@
 ﻿#nullable enable
-using StardewModdingAPI;
-using StardewModdingAPI.Utilities;
 using Common.Interfaces;
 using Common.Utilities;
-using System.Reflection;
+using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Common.Managers
 {
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public static partial class ConfigManager
     {
-        // Properties
         public static IGenericModConfigMenuApi? ConfigApi { get; private set; }
-        public static IManifest? Manifest { get; private set; }
+        private static IManifest? Manifest { get; set; }
         public static IMonitor? Monitor { get; private set; }
-        public static string? ModNamespace { get; set; }
-        public static Action SaveAction => saveAction;
+        public static string? ModNamespace { get; private set; }
+        public static Action SaveAction { get; } = () =>
+        {
+            if (_helper != null && _config != null)
+            {
+                _helper.WriteConfig((dynamic)_config);
+            }
+        };
 
         // Fields
         private static IModHelper? _helper;
         private static IConfigurable? _config;
 
-        public static void Initialize(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor, object? harmony = null)
+        public static void Initialize(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor)
         {
             _helper = helper ?? throw new ArgumentNullException(nameof(helper));
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -29,15 +36,11 @@ namespace Common.Managers
             Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             ModNamespace = Manifest.UniqueID.Split('.')[1];
 
-            ApiManager apiManager = new(helper, monitor);
+            ApiRegistry apiManager = new(helper, monitor);
             ConfigApi = apiManager.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
-            ConfigApi?.Register(manifest, resetAction, saveAction);
+            ConfigApi?.Register(manifest, ResetAction, SaveAction);
 
             I18n.Init(helper.Translation);
-
-            #if EnableCommonPatches
-            EnablePatches(harmony);
-            #endif
         }
 
         public static void AddOption(string name)
@@ -51,10 +54,7 @@ namespace Common.Managers
                 return;
             }
 
-            Func<string> getName = () => I18n.GetByKey($"Config.{ModNamespace}.{name}.Name");
-            Func<string> getDescription = () => I18n.GetByKey($"Config.{ModNamespace}.{name}.Description");
-
-            if (getName == null || getDescription == null)
+            if (string.IsNullOrEmpty(GetName()) || string.IsNullOrEmpty(GetDescription()))
             {
                 Monitor?.Log($"Error: Localization keys for '{name}' not found.", LogLevel.Error);
                 return;
@@ -63,27 +63,32 @@ namespace Common.Managers
             switch (propertyInfo.PropertyType.Name)
             {
                 case nameof(Boolean):
-                    ConfigApi!.AddBoolOption(Manifest!, () => (bool)getConfig(name), (bool value) => setConfig(name, value), getName, getDescription);
+                    ConfigApi!.AddBoolOption(Manifest!, () => (bool)GetConfig(name), value => SetConfig(name, value), GetName, GetDescription);
                     break;
                 case nameof(Int32):
-                    ConfigApi!.AddNumberOption(Manifest!, () => (int)getConfig(name), (int value) => setConfig(name, value), getName, getDescription);
+                    ConfigApi!.AddNumberOption(Manifest!, () => (int)GetConfig(name), value => SetConfig(name, value), GetName, GetDescription);
                     break;
                 case nameof(Single):
-                    ConfigApi!.AddNumberOption(Manifest!, () => (float)getConfig(name), (float value) => setConfig(name, value), getName, getDescription);
+                    ConfigApi!.AddNumberOption(Manifest!, () => (float)GetConfig(name), value => SetConfig(name, value), GetName, GetDescription);
                     break;
                 case nameof(String):
-                    ConfigApi!.AddTextOption(Manifest!, () => (string)getConfig(name), (string value) => setConfig(name, value), getName, getDescription);
+                    ConfigApi!.AddTextOption(Manifest!, () => (string)GetConfig(name), value => SetConfig(name, value), GetName, GetDescription);
                     break;
                 case nameof(SButton):
-                    ConfigApi!.AddKeybind(Manifest!, () => (SButton)getConfig(name), (SButton value) => setConfig(name, value), getName, getDescription);
+                    ConfigApi!.AddKeybind(Manifest!, () => (SButton)GetConfig(name), value => SetConfig(name, value), GetName, GetDescription);
                     break;
                 case nameof(KeybindList):
-                    ConfigApi!.AddKeybindList(Manifest!, () => (KeybindList)getConfig(name), (KeybindList value) => setConfig(name, value), getName, getDescription);
+                    ConfigApi!.AddKeybindList(Manifest!, () => (KeybindList)GetConfig(name), value => SetConfig(name, value), GetName, GetDescription);
                     break;
                 default:
                     Monitor?.Log($"Error: Unsupported property type '{propertyInfo.PropertyType.Name}' for '{name}'.", LogLevel.Error);
                     break;
             }
+
+            return;
+
+            string GetName() => I18n.GetByKey($"Config.{ModNamespace}.{name}.Name");
+            string GetDescription() => I18n.GetByKey($"Config.{ModNamespace}.{name}.Description");
         }
 
         public static void AddSectionTitle(string title, string? tooltip = null)
@@ -91,8 +96,8 @@ namespace Common.Managers
             if (!AreConfigObjectsInitialized()) return;
 
             ConfigApi!.AddSectionTitle(Manifest!,
-                () => I18n.GetByKey($"Config.{ModNamespace}.{title}.Title") ?? title,
-                () => tooltip != null ? I18n.GetByKey($"Config.{ModNamespace}.{tooltip}.Description") ?? tooltip : null!);
+                () => I18n.GetByKey($"Config.{ModNamespace}.{title}.Title"),
+                () => tooltip != null ? I18n.GetByKey($"Config.{ModNamespace}.{tooltip}.Description") : string.Empty);
         }
 
         public static void AddPageLink(string name, string? tooltip = null)
@@ -100,15 +105,15 @@ namespace Common.Managers
             if (!AreConfigObjectsInitialized()) return;
 
             ConfigApi!.AddPageLink(Manifest!, name,
-                () => $"> {I18n.GetByKey($"Config.{ModNamespace}.{name}.Title") ?? name}",
-                () => tooltip != null ? I18n.GetByKey($"Config.{ModNamespace}.{name}.Description") ?? name : null!);
+                () => $"> {I18n.GetByKey($"Config.{ModNamespace}.{name}.Title")}",
+                () => tooltip != null ? I18n.GetByKey($"Config.{ModNamespace}.{name}.Description") : string.Empty);
         }
 
         public static void AddPage(string name)
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            ConfigApi!.AddPage(Manifest!, name, () => I18n.GetByKey($"Config.{ModNamespace}.{name}.Title") ?? name);
+            ConfigApi!.AddPage(Manifest!, name, () => I18n.GetByKey($"Config.{ModNamespace}.{name}.Title"));
         }
 
         public static void OnFieldChanged(Action<string, object> onChange)
@@ -118,44 +123,32 @@ namespace Common.Managers
             ConfigApi!.OnFieldChanged(Manifest!, onChange);
         }
 
-        // Helper Methods
         private static bool AreConfigObjectsInitialized()
         {
-            if (ConfigApi == null || _config == null || Manifest == null)
-            {
-                Monitor?.LogOnce("Error: Configuration objects not initialized.", LogLevel.Error);
-                return false;
-            }
-            return true;
+            if (ConfigApi != null && _config != null && Manifest != null) return true;
+            Monitor?.LogOnce("Error: Configuration objects not initialized.", LogLevel.Error);
+            return false;
         }
 
-        private static readonly Action<string, object> setConfig = (propertyName, newValue) =>
+        private static readonly Action<string, object> SetConfig = (propertyName, newValue) =>
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            ConfigUtilities.SetConfig(_config, propertyName, newValue);
+            ConfigUtility.SetConfig(_config, propertyName, newValue);
         };
 
-        private static readonly Func<string, object> getConfig = (propertyName) =>
+        private static readonly Func<string, object> GetConfig = (propertyName) =>
         {
             if (!AreConfigObjectsInitialized()) throw new ArgumentNullException(propertyName);
 
-            return ConfigUtilities.GetConfig(_config, propertyName);
+            return ConfigUtility.GetConfig(_config, propertyName);
         };
 
-        private static readonly Action resetAction = () =>
+        private static readonly Action ResetAction = () =>
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            ConfigUtilities.InitializeDefaultConfig(_config);
-        };
-
-        private static readonly Action saveAction = () =>
-        {
-            if (_helper != null && _config != null)
-            {
-                _helper.WriteConfig((dynamic)_config);
-            }
+            ConfigUtility.InitializeDefaultConfig(_config);
         };
     }
 }
