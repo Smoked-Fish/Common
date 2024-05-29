@@ -1,24 +1,52 @@
-<Project>
-  <!-- Project properties -->
+<Project InitialTargets="Clean">
+  <!--********************************************************************
+  * Project properties
+  *********************************************************************-->
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <LangVersion>latest</LangVersion>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>Recommended</AnalysisMode>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
-    <!-- Compilation constants -->
-  <PropertyGroup>
-    <DefineConstants Condition="'$(CommonPatches)' == 'true' And '$(EnableHarmony)' == 'true'">EnableCommonPatches;EnableHarmony</DefineConstants>
-    <DefineConstants Condition="'$(CommonPatches)' == 'true' And '$(EnableHarmony)' != 'true'">EnableCommonPatches</DefineConstants>
-    <DefineConstants Condition="'$(EnableHarmony)' == 'true' And '$(CommonPatches)' != 'true'">EnableHarmony</DefineConstants>
-  </PropertyGroup>
+  <!--********************************************************************
+  * Conditionally Remove Common Patches
+  *********************************************************************-->
+  <Target Name="RemoveCommonPatches" BeforeTargets="Clean" Condition="'$(CommonPatches)' != 'true'">
+    <Message Importance="high" Text="Common patches removal triggered." />
+    <ItemGroup>
+      <Compile Remove="Framework\Common\Managers\CommonPatches.cs" />
+      <Compile Remove="Framework\Common\Helpers\PageHelper.cs" />
+      <Compile Remove="Framework\Common\Helpers\TooltipHelper.cs" />
+      <Compile Remove="Framework\Common\Utilities\ButtonOption.cs" />
+      <Compile Remove="Framework\Common\Utilities\SeparatorOption.cs" />
+    </ItemGroup>
+  </Target>
 
-  <!-- Remove unnecessary files -->
+  <!--********************************************************************
+  * Conditionally Remove PatchHelper
+  *********************************************************************-->
+  <Target Name="RemovePatchHelper" BeforeTargets="Clean" Condition="'$(EnableHarmony)' != 'true'">
+    <Message Importance="high" Text="PatchHelper removal triggered." />
+    <ItemGroup>
+      <Compile Remove="Framework\Common\Helpers\PatchHelper.cs" />
+    </ItemGroup>
+  </Target>
+
+  <!--********************************************************************
+  * Throw Conditional Error
+  *********************************************************************-->
+  <Target Name="CheckEnableHarmony" BeforeTargets="Clean" Condition="'$(CommonPatches)' == 'true' and '$(EnableHarmony)' != 'true'">
+    <Error Text="EnableHarmony must be set to 'true' if CommonPatches is set to 'true'." Code="HARMONY_REQUIRED" />
+  </Target>
+
+  <!--********************************************************************
+  * Remove unnecessary files
+  *********************************************************************-->
   <ItemGroup>
     <None Remove=".gitignore" />
     <None Remove=".gitmodules" />
@@ -29,7 +57,9 @@
     <None Remove="images\**" />
   </ItemGroup>
 
-  <!-- Package references -->
+  <!--********************************************************************
+  * Package references
+  *********************************************************************-->
   <ItemGroup>
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
   </ItemGroup>
