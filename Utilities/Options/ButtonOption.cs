@@ -1,13 +1,12 @@
-﻿#if EnableCommonPatches
-#nullable enable
-using StardewValley;
-using StardewModdingAPI;
-using StardewValley.BellsAndWhistles;
+﻿#nullable enable
+using Common.Helpers;
+using Common.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Common.Helpers;
-using Common.Managers;
+using StardewModdingAPI;
+using StardewValley;
+using StardewValley.BellsAndWhistles;
 using System;
 
 namespace Common.Utilities.Options
@@ -38,10 +37,10 @@ namespace Common.Utilities.Options
         private static double lastClickTime;
 
         // Properties
-        public int RightTextWidth { get; private set; }
-        public int RightTextHeight { get; private set; }
-        public int LeftTextWidth { get; private set; }
-        public int LeftTextHeight { get; private set; }
+        private int RightTextWidth { get; set; }
+        private int RightTextHeight { get; set; }
+        private int LeftTextWidth { get; set; }
+        private int LeftTextHeight { get; set; }
 
         // Events
         public static Action<ButtonClickEventData>? Click { get; set; }
@@ -154,15 +153,15 @@ namespace Common.Utilities.Options
                 Vector2 leftTextPosition = new(storedValues.Left - 8, storedValues.Top);
                 SpriteText.drawString(b, leftText(), (int)leftTextPosition.X, (int)leftTextPosition.Y, layerDepth: 1f, color: new Color?());
 
-                if (renderRight && hoverText != null && hoverText() != null && isRightHovered)
+                // ReSharper disable once ConvertIfStatementToSwitchStatement
+                if (renderRight && hoverText?.Invoke() != null && isRightHovered)
                 {
                     TooltipHelper.Hover = hoverText();
                 }
-                if ((renderRight && isRightHovered) || (renderLeft && isLeftHovered))
-                {
-                    TooltipHelper.Title = leftText!();
-                    TooltipHelper.Body = descText!();
-                }
+
+                if ((!renderRight || !isRightHovered) && (!renderLeft || !isLeftHovered)) return;
+                TooltipHelper.Title = leftText();
+                TooltipHelper.Body = descText!();
             }
             catch (Exception e)
             {
@@ -171,4 +170,3 @@ namespace Common.Utilities.Options
         }
     }
 }
-#endif
