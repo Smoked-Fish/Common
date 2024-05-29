@@ -69,6 +69,15 @@
     <Exec Command="mklink &quot;$(LinkPath)&quot; &quot;$(SourcePath)&quot;" Condition="!Exists('$(LinkPath)')" />
   </Target>
 
+  <Target Name="CopyEditorConfigForGitHubActions" BeforeTargets="Clean" Condition="'$(IsGitHubActions)' == 'true'">
+    <PropertyGroup>
+      <EditorConfigDestination>$(MSBuildProjectDirectory)\.editorconfig</EditorConfigDestination>
+      <EditorConfigSource>$(MSBuildThisFileDirectory).editorconfig</EditorConfigSource>
+    </PropertyGroup>
+
+    <Copy SourceFiles="$(EditorConfigSource)" DestinationFiles="$(EditorConfigDestination)" Condition="!Exists('$(EditorConfigDestination)')" />
+  </Target>
+
 
   <!--********************************************************************
   * Remove unnecessary files
