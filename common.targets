@@ -10,16 +10,13 @@
 
     <!-- Code analysis and style settings -->
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest</AnalysisLevel>
-    <AnalysisMode>Recommended</AnalysisMode>
+    <EnableNETAnalyzers Condition="'$(GITHUB_ACTIONS)' != 'true'">true</EnableNETAnalyzers>
+    <AnalysisLevel Condition="'$(GITHUB_ACTIONS)' != 'true'">latest</AnalysisLevel>
+    <AnalysisMode Condition="'$(GITHUB_ACTIONS)' != 'true'">Recommended</AnalysisMode>
     <Nullable>enable</Nullable>
 
     <!-- Output settings -->
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-
-    <!-- GitHub Actions environment detection -->
-    <IsGitHubActions Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</IsGitHubActions>
   </PropertyGroup>
 
   <!--********************************************************************
@@ -60,22 +57,13 @@
     <EditorConfigFiles Remove="$(MSBuildThisFileDirectory).editorconfig" />
   </ItemGroup>
 
-  <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean" Condition="'$(IsGitHubActions)' != 'true'" >
+  <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean" Condition="'$(GITHUB_ACTIONS)' == 'true'" >
     <PropertyGroup>
       <LinkPath>$(MSBuildProjectDirectory)\.editorconfig</LinkPath>
       <SourcePath>$(MSBuildThisFileDirectory).editorconfig</SourcePath>
     </PropertyGroup>
 
     <Exec Command="mklink &quot;$(LinkPath)&quot; &quot;$(SourcePath)&quot;" Condition="!Exists('$(LinkPath)')" />
-  </Target>
-
-  <Target Name="CopyEditorConfigForGitHubActions" BeforeTargets="Clean" Condition="'$(IsGitHubActions)' == 'true'">
-    <PropertyGroup>
-      <EditorConfigDestination>$(MSBuildProjectDirectory)\.editorconfig</EditorConfigDestination>
-      <EditorConfigSource>$(MSBuildThisFileDirectory).editorconfig</EditorConfigSource>
-    </PropertyGroup>
-
-    <Copy SourceFiles="$(EditorConfigSource)" DestinationFiles="$(EditorConfigDestination)" Condition="!Exists('$(EditorConfigDestination)')" />
   </Target>
 
 
