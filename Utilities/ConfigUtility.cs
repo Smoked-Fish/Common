@@ -1,5 +1,4 @@
-﻿#nullable disable
-using Common.Interfaces;
+﻿using Common.Interfaces;
 using Common.Managers;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -11,16 +10,15 @@ namespace Common.Utilities
 {
     public static class ConfigUtility
     {
-        public static event EventHandler<ConfigChangedEventArgs> ConfigChanged;
+        public static event EventHandler<ConfigChangedEventArgs>? ConfigChanged;
 
-        public static void InitializeDefaultConfig(IConfigurable config, string category = null)
+        public static void InitializeDefaultConfig(IConfigurable config, string? category = null)
         {
             foreach (PropertyInfo property in config.GetType().GetProperties())
             {
-                DefaultValueAttribute defaultValueAttribute = (DefaultValueAttribute)property.GetCustomAttribute(typeof(DefaultValueAttribute));
-                if (defaultValueAttribute == null) continue;
+                if (property.GetCustomAttribute(typeof(DefaultValueAttribute)) is not DefaultValueAttribute defaultValueAttribute) continue;
 
-                object defaultValue = defaultValueAttribute.Value;
+                object? defaultValue = defaultValueAttribute.Value;
                 if (category != null && defaultValueAttribute.Category != category) continue;
 
                 if (property.PropertyType == typeof(KeybindList) && defaultValue is SButton button)
@@ -29,7 +27,7 @@ namespace Common.Utilities
                 }
 
                 // Handle list default value
-                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>) && defaultValue == null)
+                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     // Create a new instance of List<T> where T is the generic argument of the property type
                     Type elementType = property.PropertyType.GetGenericArguments()[0];
@@ -37,6 +35,7 @@ namespace Common.Utilities
                     defaultValue = Activator.CreateInstance(listType);
                 }
 
+                if (defaultValue == null || config == null) continue;
                 OnConfigChanged(config, property.Name, property.GetValue(config), defaultValue);
                 property.SetValue(config, defaultValue);
             }
@@ -46,7 +45,7 @@ namespace Common.Utilities
 
         public static void SetConfig(IConfigurable config, string propertyName, object value)
         {
-            PropertyInfo property = config.GetType().GetProperty(propertyName);
+            PropertyInfo? property = config.GetType().GetProperty(propertyName);
             if (property != null)
             {
                 try
@@ -66,37 +65,35 @@ namespace Common.Utilities
             }
         }
 
-        public static object GetConfig(IConfigurable config, string propertyName)
+        public static object? GetConfig(IConfigurable config, string propertyName)
         {
-            PropertyInfo property = config.GetType().GetProperty(propertyName);
+            PropertyInfo? property = config.GetType().GetProperty(propertyName);
             if (property != null)
             {
                 return property.GetValue(config);
             }
-            else
-            {
-                ConfigManager.Monitor?.Log($"Property '{propertyName}' not found in config.", LogLevel.Error);
-                return null;
-            }
+
+            ConfigManager.Monitor?.Log($"Property '{propertyName}' not found in config.", LogLevel.Error);
+            return null;
         }
 
-        private static void OnConfigChanged(IConfigurable config, string propertyName, object oldValue, object newValue)
+        private static void OnConfigChanged(IConfigurable config, string propertyName, object? oldValue, object newValue)
         {
             ConfigChanged?.Invoke(config, new ConfigChangedEventArgs(propertyName, oldValue, newValue));
         }
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public class DefaultValueAttribute(object value, string category = null) : Attribute
+    public class DefaultValueAttribute(object? value, string? category = null) : Attribute
     {
-        public object Value { get; } = value;
-        public string Category { get; } = category;
+        public object? Value { get; } = value;
+        public string? Category { get; } = category;
     }
 
-    public class ConfigChangedEventArgs(string configName, object oldValue, object newValue) : EventArgs
+    public class ConfigChangedEventArgs(string configName, object? oldValue, object newValue) : EventArgs
     {
         public string ConfigName { get; } = configName;
-        public object OldValue { get; } = oldValue;
+        public object? OldValue { get; } = oldValue;
         public object NewValue { get; } = newValue;
     }
 }
