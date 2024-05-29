@@ -2,9 +2,10 @@
 resharper_check_namespace_highlighting = none
 resharper_redundant_nullable_directive_highlighting = none
 
-[Framework/Common/Managers/ConfigManagerExtension.cs]
+[Framework/Common/Managers/ConfigManager*.cs]
 dotnet_diagnostic.RCS1163.severity = none
 dotnet_diagnostic.IDE0060.severity = none
+resharper_member_can_be_private_global_highlighting = none
 
 [Framework/Common/Utilities/Options/ButtonOption.cs]
 resharper_member_can_be_private_global_highlighting = none
