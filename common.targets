@@ -52,7 +52,6 @@
   <!--********************************************************************
   * Create a symbolic link to .editorconfig file.
   *********************************************************************-->
-
   <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean" Condition="'$(GITHUB_ACTIONS)' != 'true'" >
     <PropertyGroup>
       <LinkPath>$(MSBuildProjectDirectory)\.editorconfig</LinkPath>
