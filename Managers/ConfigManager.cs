@@ -3,12 +3,10 @@ using Common.Utilities;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Common.Managers
 {
-    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public static partial class ConfigManager
     {
         public static IGenericModConfigMenuApi? ConfigApi { get; private set; }
@@ -27,7 +25,7 @@ namespace Common.Managers
         private static IModHelper? _helper;
         private static IConfigurable? _config;
 
-        public static void Initialize(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor)
+        public static void Init(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor)
         {
             _helper = helper ?? throw new ArgumentNullException(nameof(helper));
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -35,16 +33,17 @@ namespace Common.Managers
             Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             ModNamespace = Manifest.UniqueID.Split('.')[1];
 
-            ApiRegistry apiManager = new(helper, monitor);
-            ConfigApi = apiManager.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
+            ApiRegistry.Init(helper, monitor);
+            ConfigApi = ApiRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
             ConfigApi?.Register(manifest, ResetAction, SaveAction);
 
             I18n.Init(helper.Translation);
         }
 
-        public static void AddOption(string name)
+        public static void AddOption(string name, bool skipOption = false)
         {
             if (!AreConfigObjectsInitialized()) return;
+            if (skipOption) return;
 
             PropertyInfo? propertyInfo = _config!.GetType().GetProperty(name);
             if (propertyInfo == null)
