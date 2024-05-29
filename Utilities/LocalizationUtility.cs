@@ -1,8 +1,9 @@
 ﻿#nullable enable
+using Common.Managers;
 using StardewModdingAPI;
 using System;
 
-namespace Common.Managers
+namespace Common.Utilities
 {
     public static class I18n
     {
