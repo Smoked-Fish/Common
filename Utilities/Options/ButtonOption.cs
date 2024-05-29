@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Common.Helpers;
+﻿using Common.Helpers;
 using Common.Managers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

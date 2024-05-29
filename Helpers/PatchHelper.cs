@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Common.Utilities.Exceptions;
+﻿using Common.Utilities.Exceptions;
 using HarmonyLib;
 using System;
 using System.ComponentModel;

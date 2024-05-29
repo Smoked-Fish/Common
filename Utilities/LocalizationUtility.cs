@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Common.Managers;
+﻿using Common.Managers;
 using StardewModdingAPI;
 using System;
 

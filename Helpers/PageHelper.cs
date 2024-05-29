@@ -1,5 +1,4 @@
-﻿#nullable enable
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 
 namespace Common.Helpers

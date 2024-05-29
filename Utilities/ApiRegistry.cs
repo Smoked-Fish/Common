@@ -1,5 +1,4 @@
-﻿#nullable enable
-using StardewModdingAPI;
+﻿using StardewModdingAPI;
 using System;
 using System.Collections.Generic;
 

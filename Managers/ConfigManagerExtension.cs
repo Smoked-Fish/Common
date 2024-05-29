@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Common.Helpers;
+﻿using Common.Helpers;
 using Common.Interfaces;
 using Common.Utilities;
 using Common.Utilities.Options;

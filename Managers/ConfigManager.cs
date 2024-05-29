@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Common.Interfaces;
+﻿using Common.Interfaces;
 using Common.Utilities;
 using StardewModdingAPI;
 using StardewModdingAPI.Utilities;
@@ -134,21 +133,21 @@ namespace Common.Managers
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            ConfigUtility.SetConfig(_config, propertyName, newValue);
+            ConfigUtility.SetConfig(_config!, propertyName, newValue);
         };
 
         private static readonly Func<string, object> GetConfig = (propertyName) =>
         {
             if (!AreConfigObjectsInitialized()) throw new ArgumentNullException(propertyName);
 
-            return ConfigUtility.GetConfig(_config, propertyName);
+            return ConfigUtility.GetConfig(_config!, propertyName) ?? throw new InvalidOperationException();
         };
 
         private static readonly Action ResetAction = () =>
         {
             if (!AreConfigObjectsInitialized()) return;
 
-            ConfigUtility.InitializeDefaultConfig(_config);
+            ConfigUtility.InitializeDefaultConfig(_config!);
         };
     }
 }
