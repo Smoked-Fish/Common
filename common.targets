@@ -24,11 +24,11 @@
   *********************************************************************-->
   <Target Name="RemoveCommonPatches" BeforeTargets="Clean" Condition="'$(CommonPatches)' != 'true'">
     <ItemGroup>
-      <Compile Remove="Framework\Common\Managers\CommonPatches.cs" />
+      <Compile Remove="Framework\Common\Managers\ConfigManagerExtension.cs" />
       <Compile Remove="Framework\Common\Helpers\PageHelper.cs" />
       <Compile Remove="Framework\Common\Helpers\TooltipHelper.cs" />
-      <Compile Remove="Framework\Common\Utilities\ButtonOption.cs" />
-      <Compile Remove="Framework\Common\Utilities\SeparatorOption.cs" />
+      <Compile Remove="Framework\Common\Utilities\Options\ButtonOption.cs" />
+      <Compile Remove="Framework\Common\Utilities\Options\SeparatorOption.cs" />
     </ItemGroup>
   </Target>
 
@@ -38,6 +38,8 @@
   <Target Name="RemovePatchHelper" BeforeTargets="Clean" Condition="'$(EnableHarmony)' != 'true'">
     <ItemGroup>
       <Compile Remove="Framework\Common\Helpers\PatchHelper.cs" />
+      <Compile Remove="Framework\Common\Utilities\Exceptions\InstanceNullException.cs" />
+      <Compile Remove="Framework\Common\Utilities\Exceptions\PatchingException.cs" />
     </ItemGroup>
   </Target>
 

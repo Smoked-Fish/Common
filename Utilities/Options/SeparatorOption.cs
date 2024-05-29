@@ -5,7 +5,7 @@ using System;
 
 namespace Common.Utilities.Options
 {
-    internal static class SeparatorOptions
+    internal static class SeparatorOption
     {
         private const int SeparatorHeight = 3;
 

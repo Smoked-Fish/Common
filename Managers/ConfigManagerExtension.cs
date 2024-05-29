@@ -51,7 +51,7 @@ namespace Common.Managers
             ConfigApi!.AddComplexOption(
                 mod: Manifest!,
                 name: () => string.Empty,
-                draw: SeparatorOptions.Draw);
+                draw: SeparatorOption.Draw);
         }
 
         private static void EnablePatches()
