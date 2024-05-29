@@ -1,51 +1,44 @@
 ﻿#nullable disable
-using StardewModdingAPI;
-using StardewModdingAPI.Utilities;
 using Common.Interfaces;
 using Common.Managers;
+using StardewModdingAPI;
+using StardewModdingAPI.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System;
 
 namespace Common.Utilities
 {
-    public static class ConfigUtilities
+    public static class ConfigUtility
     {
         public static event EventHandler<ConfigChangedEventArgs> ConfigChanged;
 
         public static void InitializeDefaultConfig(IConfigurable config, string category = null)
         {
-            PropertyInfo[] properties = config.GetType().GetProperties();
-
-            foreach (PropertyInfo property in properties)
+            foreach (PropertyInfo property in config.GetType().GetProperties())
             {
                 DefaultValueAttribute defaultValueAttribute = (DefaultValueAttribute)property.GetCustomAttribute(typeof(DefaultValueAttribute));
-                if (defaultValueAttribute != null)
+                if (defaultValueAttribute == null) continue;
+
+                object defaultValue = defaultValueAttribute.Value;
+                if (category != null && defaultValueAttribute.Category != category) continue;
+
+                if (property.PropertyType == typeof(KeybindList) && defaultValue is SButton button)
                 {
-                    object defaultValue = defaultValueAttribute.Value;
-
-                    if (category != null && defaultValueAttribute.Category != category)
-                    {
-                        continue;
-                    }
-
-                    if (property.PropertyType == typeof(KeybindList) && defaultValue is SButton button)
-                    {
-                        defaultValue = new KeybindList(button);
-                    }
-
-                    // Handle list default value
-                    if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>) && defaultValue == null)
-                    {
-                        // Create a new instance of List<T> where T is the generic argument of the property type
-                        Type elementType = property.PropertyType.GetGenericArguments()[0];
-                        Type listType = typeof(List<>).MakeGenericType(elementType);
-                        defaultValue = Activator.CreateInstance(listType);
-                    }
-
-                    OnConfigChanged(config, property.Name, property.GetValue(config), defaultValue);
-                    property.SetValue(config, defaultValue);
+                    defaultValue = new KeybindList(button);
                 }
+
+                // Handle list default value
+                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>) && defaultValue == null)
+                {
+                    // Create a new instance of List<T> where T is the generic argument of the property type
+                    Type elementType = property.PropertyType.GetGenericArguments()[0];
+                    Type listType = typeof(List<>).MakeGenericType(elementType);
+                    defaultValue = Activator.CreateInstance(listType);
+                }
+
+                OnConfigChanged(config, property.Name, property.GetValue(config), defaultValue);
+                property.SetValue(config, defaultValue);
             }
 
             ConfigManager.SaveAction.Invoke();
@@ -64,12 +57,12 @@ namespace Common.Utilities
                 }
                 catch (Exception ex)
                 {
-                    ConfigManager.Monitor.Log($"Error setting property '{propertyName}': {ex.Message}", LogLevel.Error);
+                    ConfigManager.Monitor?.Log($"Error setting property '{propertyName}': {ex.Message}", LogLevel.Error);
                 }
             }
             else
             {
-                ConfigManager.Monitor.Log($"Property '{propertyName}' not found in config.", LogLevel.Error);
+                ConfigManager.Monitor?.Log($"Property '{propertyName}' not found in config.", LogLevel.Error);
             }
         }
 
@@ -82,12 +75,12 @@ namespace Common.Utilities
             }
             else
             {
-                ConfigManager.Monitor.Log($"Property '{propertyName}' not found in config.", LogLevel.Error);
+                ConfigManager.Monitor?.Log($"Property '{propertyName}' not found in config.", LogLevel.Error);
                 return null;
             }
         }
 
-        public static void OnConfigChanged(IConfigurable config, string propertyName, object oldValue, object newValue)
+        private static void OnConfigChanged(IConfigurable config, string propertyName, object oldValue, object newValue)
         {
             ConfigChanged?.Invoke(config, new ConfigChangedEventArgs(propertyName, oldValue, newValue));
         }
