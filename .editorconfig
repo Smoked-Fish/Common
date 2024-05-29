@@ -1,0 +1,34 @@
+[Framework/Common/**/*.cs]
+resharper_check_namespace_highlighting = none
+resharper_redundant_nullable_directive_highlighting = none
+
+[Framework/Common/Managers/ConfigManagerExtension.cs]
+dotnet_diagnostic.RCS1163.severity = none
+dotnet_diagnostic.IDE0060.severity = none
+
+[Framework/Common/Utilities/Options/ButtonOption.cs]
+resharper_member_can_be_private_global_highlighting = none
+
+[**/*Patch.cs]
+dotnet_diagnostic.RCS1163.severity = none
+dotnet_diagnostic.IDE0060.severity = none
+resharper_unused_parameter_global_highlighting = none
+resharper_unused_parameter_local_highlighting = none
+resharper_redundant_assignment_highlighting = none
+resharper_use_object_or_collection_initializer_highlighting = none
+
+[ModEntry.cs]
+resharper_class_never_instantiated_global_highlighting = none
+
+[*.cs]
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA1309.severity = none
+dotnet_diagnostic.CA1310.severity = none
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1716.severity = none
+resharper_inconsistent_naming_highlighting = none
+resharper_suggest_var_or_type_elsewhere_highlighting = none
+resharper_suggest_var_or_type_simple_types_highlighting = none
+resharper_suggest_var_or_type_built_in_types_highlighting = none
+
+

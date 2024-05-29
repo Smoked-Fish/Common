@@ -17,7 +17,6 @@
   * Conditionally Remove Common Patches
   *********************************************************************-->
   <Target Name="RemoveCommonPatches" BeforeTargets="Clean" Condition="'$(CommonPatches)' != 'true'">
-    <Message Importance="high" Text="Common patches removal triggered." />
     <ItemGroup>
       <Compile Remove="Framework\Common\Managers\CommonPatches.cs" />
       <Compile Remove="Framework\Common\Helpers\PageHelper.cs" />
@@ -31,7 +30,6 @@
   * Conditionally Remove PatchHelper
   *********************************************************************-->
   <Target Name="RemovePatchHelper" BeforeTargets="Clean" Condition="'$(EnableHarmony)' != 'true'">
-    <Message Importance="high" Text="PatchHelper removal triggered." />
     <ItemGroup>
       <Compile Remove="Framework\Common\Helpers\PatchHelper.cs" />
     </ItemGroup>
@@ -44,6 +42,25 @@
     <Error Text="EnableHarmony must be set to 'true' if CommonPatches is set to 'true'." Code="HARMONY_REQUIRED" />
   </Target>
 
+  
+  <!--********************************************************************
+  * Create a symbolic link to .editorconfig file.
+  *********************************************************************-->
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="$(MSBuildThisFileDirectory).editorconfig" />
+  </ItemGroup>
+
+  <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean">
+    <PropertyGroup>
+      <LinkPath>$(MSBuildProjectDirectory)\.editorconfig</LinkPath>
+      <SourcePath>$(MSBuildThisFileDirectory).editorconfig</SourcePath>
+    </PropertyGroup>
+
+    <Exec Command="mklink &quot;$(LinkPath)&quot; &quot;$(SourcePath)&quot;" Condition="!Exists('$(LinkPath)')" />
+  </Target>
+
+
   <!--********************************************************************
   * Remove unnecessary files
   *********************************************************************-->
@@ -51,6 +68,7 @@
     <None Remove=".gitignore" />
     <None Remove=".gitmodules" />
     <None Remove="Framework\Common\.git" />
+    <None Remove="Framework\Common\.editorconfig" />
     <None Remove="CONTRIBUTING.md" />
     <None Remove="LICENSE" />
     <None Remove="README.md" />
@@ -63,4 +81,5 @@
   <ItemGroup>
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
   </ItemGroup>
+
 </Project>
