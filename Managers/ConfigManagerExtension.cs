@@ -9,9 +9,9 @@ namespace Common.Managers
 {
     public static partial class ConfigManager
     {
-        public static void Initialize(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor, bool enablePatches)
+        public static void Init(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor, bool enablePatches)
         {
-            Initialize(manifest, config, helper, monitor);
+            Init(manifest, config, helper, monitor);
             EnablePatches();
         }
 
