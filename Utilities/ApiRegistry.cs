@@ -1,15 +1,13 @@
 ﻿#nullable enable
 using StardewModdingAPI;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
-namespace Common.Managers
+namespace Common.Utilities
 {
-    public class ApiManager(IModHelper helper, IMonitor monitor)
+    public class ApiRegistry(IModHelper helper, IMonitor monitor)
     {
         private readonly Dictionary<Type, object> _apis = [];
-        private readonly IModHelper _helper = helper;
-        private readonly IMonitor _monitor = monitor;
 
         /// <summary>
         /// Retrieves an instance of the specified API type from the mod registry.
@@ -23,21 +21,21 @@ namespace Common.Managers
                     return typedApi;
                 }
 
-                api = _helper.ModRegistry.GetApi<T>(apiName);
+                api = helper.ModRegistry.GetApi<T>(apiName);
 
                 if (api == null)
                 {
-                    _monitor.Log($"Failed to hook into {apiName}.", logError ? LogLevel.Error : LogLevel.Trace);
+                    monitor.Log($"Failed to hook into {apiName}.", logError ? LogLevel.Error : LogLevel.Trace);
                     return null;
                 }
 
                 _apis[typeof(T)] = api;
-                _monitor.Log($"Successfully hooked into {apiName}.", LogLevel.Trace);
+                monitor.Log($"Successfully hooked into {apiName}.");
                 return (T)api;
             }
             catch (Exception e)
             {
-                _monitor.Log($"Failed to hook into the {apiName} API. Please check if the mod has an update: {e.Message}", LogLevel.Warn);
+                monitor.Log($"Failed to hook into the {apiName} API. Please check if the mod has an update: {e.Message}", LogLevel.Warn);
                 return null;
             }
         }
