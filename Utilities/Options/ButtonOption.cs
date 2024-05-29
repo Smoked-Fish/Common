@@ -37,10 +37,10 @@ namespace Common.Utilities.Options
         private static double lastClickTime;
 
         // Properties
-        private int RightTextWidth { get; set; }
-        private int RightTextHeight { get; set; }
-        private int LeftTextWidth { get; set; }
-        private int LeftTextHeight { get; set; }
+        public int RightTextWidth { get; set; }
+        public int RightTextHeight { get; set; }
+        public int LeftTextWidth { get; set; }
+        public int LeftTextHeight { get; set; }
 
         // Events
         public static Action<ButtonClickEventData>? Click { get; set; }
