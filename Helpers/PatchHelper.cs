@@ -1,32 +1,36 @@
-﻿#if EnableHarmony
-#nullable enable
-using HarmonyLib;
+﻿#nullable enable
 using Common.Utilities.Exceptions;
-using System.Reflection;
-using System.ComponentModel;
+using HarmonyLib;
 using System;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace Common.Helpers
 {
-    public class PatchHelper
+    public partial class PatchHelper
     {
-        internal static Harmony? _harmony;
-        internal static Type? _object;
+        private static Harmony? _harmony;
+        private readonly Type? _objectType;
 
-        internal PatchHelper(Harmony harmonyInstance, Type? objectType = null)
+        protected PatchHelper(Type? objectType = null)
         {
-            _harmony = harmonyInstance ?? throw new ArgumentNullException(nameof(harmonyInstance), "Harmony instance cannot be null.");
-            _object = objectType;
+            _ = _harmony ?? throw new InvalidOperationException("Harmony instance is not initialized.");
+            _objectType = objectType;
+        }
+
+        public static void Init(Harmony harmony)
+        {
+            _harmony = harmony ?? throw new ArgumentNullException(nameof(harmony), "Harmony instance cannot be null.");
         }
 
         /// <summary>
         /// Applies method patches using Harmony for a specified target method.
         /// </summary>
-        public void Patch(PatchType patchType, string originalMethod, string newMethod, Type[]? parameters = null)
+        protected void Patch(PatchType patchType, string originalMethod, string newMethod, Type[]? parameters = null)
         {
             try
             {
-                MethodInfo targetMethod = _object != null ? AccessTools.Method(_object, originalMethod, parameters) : AccessTools.Method(originalMethod, parameters);
+                MethodInfo targetMethod = _objectType != null ? AccessTools.Method(_objectType, originalMethod, parameters) : AccessTools.Method(originalMethod, parameters);
                 HarmonyMethod harmonyMethod = new(GetType(), newMethod);
 
                 ApplyPatch(patchType, targetMethod, harmonyMethod);
@@ -40,7 +44,7 @@ namespace Common.Helpers
         /// <summary>
         /// Applies constructor patches using Harmony for a specified target method.
         /// </summary>
-        public void ConstructorPatch(PatchType patchType, string originalMethod, string newMethod, Type[]? parameters = null)
+        protected void ConstructorPatch(PatchType patchType, string originalMethod, string newMethod, Type[]? parameters = null)
         {
             try
             {
@@ -77,13 +81,15 @@ namespace Common.Helpers
                     throw new InvalidEnumArgumentException($"Unknown enum PatchType: {patchType}");
             }
         }
+    }
 
+    public partial class PatchHelper
+    {
         public enum PatchType
         {
             Prefix,
             Postfix,
-            Transpiler
+            Transpiler,
         }
     }
 }
-#endif
