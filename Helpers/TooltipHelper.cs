@@ -1,9 +1,7 @@
-﻿#if EnableCommonPatches
-#nullable enable
-using HarmonyLib;
+﻿#nullable enable
+using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Common.Helpers
 {
@@ -13,21 +11,17 @@ namespace Common.Helpers
         public static string? Body { get; set; }
         public static string? Hover { get; set; }
 
-        internal TooltipHelper(Harmony harmony) : base(harmony) { }
-
         public void Apply()
         {
-            Patch(PatchType.Postfix, "GenericModConfigMenu.Framework.SpecificModConfigMenu:draw", nameof(DrawPostfix), [typeof(SpriteBatch)]);
+            Patch(PatchType.Postfix,"GenericModConfigMenu.Framework.SpecificModConfigMenu:draw", nameof(DrawPostfix), [typeof(SpriteBatch)]);
         }
 
         private static void DrawPostfix(SpriteBatch b)
         {
-            /*ConfigManager.ConfigApi!.TryGetCurrentMenu(out IManifest manifest, out string _);
-            if (manifest.UniqueID != ConfigManager.Manifest!.UniqueID) return;*/
-
             var title = Title;
             var text = Body;
             var hover = Hover;
+
             if (hover is not null)
             {
                 if (!hover.Contains('\n')) text = Game1.parseText(text, Game1.smallFont, 800);
@@ -46,4 +40,3 @@ namespace Common.Helpers
         }
     }
 }
-#endif
