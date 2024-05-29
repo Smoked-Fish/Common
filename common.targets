@@ -57,7 +57,7 @@
     <EditorConfigFiles Remove="$(MSBuildThisFileDirectory).editorconfig" />
   </ItemGroup>
 
-  <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean" Condition="'$(GITHUB_ACTIONS)' == 'true'" >
+  <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean" Condition="'$(GITHUB_ACTIONS)' != 'true'" >
     <PropertyGroup>
       <LinkPath>$(MSBuildProjectDirectory)\.editorconfig</LinkPath>
       <SourcePath>$(MSBuildThisFileDirectory).editorconfig</SourcePath>
