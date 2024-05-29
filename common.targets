@@ -3,15 +3,23 @@
   * Project properties
   *********************************************************************-->
   <PropertyGroup>
+    <!-- Target framework and namespace settings -->
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
     <LangVersion>latest</LangVersion>
+
+    <!-- Code analysis and style settings -->
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>Recommended</AnalysisMode>
     <Nullable>enable</Nullable>
+
+    <!-- Output settings -->
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!-- GitHub Actions environment detection -->
+    <IsGitHubActions Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</IsGitHubActions>
   </PropertyGroup>
 
   <!--********************************************************************
@@ -52,7 +60,7 @@
     <EditorConfigFiles Remove="$(MSBuildThisFileDirectory).editorconfig" />
   </ItemGroup>
 
-  <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean">
+  <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean" Condition="'$(IsGitHubActions)' != 'true'" >
     <PropertyGroup>
       <LinkPath>$(MSBuildProjectDirectory)\.editorconfig</LinkPath>
       <SourcePath>$(MSBuildThisFileDirectory).editorconfig</SourcePath>
