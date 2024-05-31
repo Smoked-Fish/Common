@@ -1,4 +1,4 @@
-<Project InitialTargets="Clean">
+<Project InitialTargets="InitializationTasks">
   <!--********************************************************************
   * Project properties
   *********************************************************************-->
@@ -15,52 +15,42 @@
     <AnalysisMode Condition="'$(GITHUB_ACTIONS)' != 'true'">Recommended</AnalysisMode>
     <Nullable>enable</Nullable>
 
+    <!-- Link path properties -->
+    <LinkPath>$(MSBuildProjectDirectory)\.editorconfig</LinkPath>
+    <SourcePath>$(MSBuildThisFileDirectory).editorconfig</SourcePath>
+
     <!-- Output settings -->
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <!--********************************************************************
-  * Conditionally Remove Common Patches
+  * Initialization Tasks
   *********************************************************************-->
-  <Target Name="RemoveCommonPatches" BeforeTargets="Clean" Condition="'$(CommonPatches)' != 'true'">
-    <ItemGroup>
+  <Target Name="InitializationTasks" >
+    <!-- Conditionally Remove Common Patches -->
+    <ItemGroup Condition="'$(CommonPatches)' != 'true'">
       <Compile Remove="Framework\Common\Managers\ConfigManagerExtension.cs" />
       <Compile Remove="Framework\Common\Helpers\PageHelper.cs" />
       <Compile Remove="Framework\Common\Helpers\TooltipHelper.cs" />
       <Compile Remove="Framework\Common\Utilities\Options\ButtonOption.cs" />
       <Compile Remove="Framework\Common\Utilities\Options\SeparatorOption.cs" />
     </ItemGroup>
-  </Target>
 
-  <!--********************************************************************
-  * Conditionally Remove PatchHelper
-  *********************************************************************-->
-  <Target Name="RemovePatchHelper" BeforeTargets="Clean" Condition="'$(EnableHarmony)' != 'true'">
-    <ItemGroup>
+    <!-- Conditionally Remove PatchHelper -->
+    <ItemGroup Condition="'$(EnableHarmony)' != 'true'">
       <Compile Remove="Framework\Common\Helpers\PatchHelper.cs" />
       <Compile Remove="Framework\Common\Utilities\Exceptions\InstanceNullException.cs" />
       <Compile Remove="Framework\Common\Utilities\Exceptions\PatchingException.cs" />
     </ItemGroup>
-  </Target>
 
-  <!--********************************************************************
-  * Throw Conditional Error
-  *********************************************************************-->
-  <Target Name="CheckEnableHarmony" BeforeTargets="Clean" Condition="'$(CommonPatches)' == 'true' and '$(EnableHarmony)' != 'true'">
-    <Error Text="EnableHarmony must be set to 'true' if CommonPatches is set to 'true'." Code="HARMONY_REQUIRED" />
-  </Target>
-
-  
-  <!--********************************************************************
-  * Create a symbolic link to .editorconfig file.
-  *********************************************************************-->
-  <Target Name="CreateLinkToEditorConfig" BeforeTargets="Clean" Condition="'$(GITHUB_ACTIONS)' != 'true'" >
-    <PropertyGroup>
-      <LinkPath>$(MSBuildProjectDirectory)\.editorconfig</LinkPath>
-      <SourcePath>$(MSBuildThisFileDirectory).editorconfig</SourcePath>
-    </PropertyGroup>
-
-    <Exec Command="mklink &quot;$(LinkPath)&quot; &quot;$(SourcePath)&quot;" Condition="!Exists('$(LinkPath)')" />
+    <!-- Throw Conditional Error -->
+    <Error Text="EnableHarmony must be set to 'true' if CommonPatches is set to 'true'." Code="HARMONY_REQUIRED" Condition="'$(CommonPatches)' == 'true' and '$(EnableHarmony)' != 'true'" />
+    
+    
+    <Exec Command="echo Completed additional commands" />
+    
+    <!-- Create a symbolic link to .editorconfig file -->
+    <Exec Command="mklink &quot;$(LinkPath)&quot; &quot;$(SourcePath)&quot;" Condition="'$(GITHUB_ACTIONS)' != 'true' and !Exists('$(LinkPath)')" />
   </Target>
 
 
