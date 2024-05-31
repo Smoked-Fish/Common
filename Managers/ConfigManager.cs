@@ -1,6 +1,7 @@
 ﻿using Common.Interfaces;
 using Common.Utilities;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using System;
 using System.Reflection;
@@ -33,11 +34,15 @@ namespace Common.Managers
             Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             ModNamespace = Manifest.UniqueID.Split('.')[1];
 
-            ApiRegistry.Init(helper, monitor);
-            ConfigApi = ApiRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
-            ConfigApi?.Register(manifest, ResetAction, SaveAction);
-
             I18n.Init(helper.Translation);
+            helper.Events.GameLoop.GameLaunched  += FinishInit;
+        }
+
+        private static void FinishInit(object? sender, GameLaunchedEventArgs e)
+        {
+            ApiRegistry.Init(_helper!, Monitor!);
+            ConfigApi = ApiRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
+            ConfigApi?.Register(Manifest!, ResetAction, SaveAction);
         }
 
         public static void AddOption(string name, bool skipOption = false)

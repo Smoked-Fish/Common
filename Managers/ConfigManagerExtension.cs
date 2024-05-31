@@ -2,6 +2,7 @@
 using Common.Interfaces;
 using Common.Utilities;
 using Common.Utilities.Options;
+using HarmonyLib;
 using StardewModdingAPI;
 using System;
 
@@ -12,6 +13,7 @@ namespace Common.Managers
         public static void Init(IManifest manifest, IConfigurable config, IModHelper helper, IMonitor monitor, bool enablePatches)
         {
             Init(manifest, config, helper, monitor);
+            PatchHelper.Init(new Harmony(manifest.UniqueID));
             EnablePatches();
         }
 

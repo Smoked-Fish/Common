@@ -37,17 +37,17 @@ namespace Common.Utilities
 
                 if (api == null)
                 {
-                    _monitor.Log($"Failed to hook into {apiName}.", logError ? LogLevel.Error : LogLevel.Trace);
+                    _monitor.Log($"Failed to load API for mod {apiName}", logError ? LogLevel.Error : LogLevel.Trace);
                     return null;
                 }
 
                 _apisDictionary[typeof(T)] = api;
-                _monitor.Log($"Successfully hooked into {apiName}.");
+                _monitor.Log($"Loaded API for mod {apiName}", logError ? LogLevel.Debug : LogLevel.Trace);
                 return (T)api;
             }
             catch (Exception e)
             {
-                _monitor.Log($"Failed to hook into the {apiName} API. Please check if the mod has an update: {e.Message}", LogLevel.Warn);
+                _monitor.Log($"Failed to load API for {apiName}. Please check if the mod has an update: {e.Message}", LogLevel.Warn);
                 return null;
             }
         }
