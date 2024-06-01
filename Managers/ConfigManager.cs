@@ -10,6 +10,7 @@ namespace Common.Managers
 {
     public static partial class ConfigManager
     {
+        public static event EventHandler? ConfigInitialized;
         public static IGenericModConfigMenuApi? ConfigApi { get; private set; }
         private static IManifest? Manifest { get; set; }
         public static IMonitor? Monitor { get; private set; }
@@ -43,6 +44,7 @@ namespace Common.Managers
             ApiRegistry.Init(_helper!, Monitor!);
             ConfigApi = ApiRegistry.GetApi<IGenericModConfigMenuApi>("spacechase0.GenericModConfigMenu", false);
             ConfigApi?.Register(Manifest!, ResetAction, SaveAction);
+            ConfigInitialized?.Invoke(null, EventArgs.Empty);
         }
 
         public static void AddOption(string name, bool skipOption = false)
