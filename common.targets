@@ -46,9 +46,6 @@
     <!-- Throw Conditional Error -->
     <Error Text="EnableHarmony must be set to 'true' if CommonPatches is set to 'true'." Code="HARMONY_REQUIRED" Condition="'$(CommonPatches)' == 'true' and '$(EnableHarmony)' != 'true'" />
     
-    
-    <Exec Command="echo Completed additional commands" />
-    
     <!-- Create a symbolic link to .editorconfig file -->
     <Exec Command="mklink &quot;$(LinkPath)&quot; &quot;$(SourcePath)&quot;" Condition="'$(GITHUB_ACTIONS)' != 'true' and !Exists('$(LinkPath)')" />
   </Target>
