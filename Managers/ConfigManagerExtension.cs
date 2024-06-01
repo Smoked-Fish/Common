@@ -14,7 +14,7 @@ namespace Common.Managers
         {
             Init(manifest, config, helper, monitor);
             PatchHelper.Init(new Harmony(manifest.UniqueID));
-            ConfigInitialized += (sender, args) => EnablePatches();
+            ConfigInitialized += (_, _) => EnablePatches();
         }
 
         public static void AddButtonOption(
