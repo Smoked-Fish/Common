@@ -21,6 +21,7 @@
 
     <!-- Output settings -->
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GameModsPath>F:\Portable Programs\Stardrop\SMAPI\Mods\Installed</GameModsPath>
   </PropertyGroup>
 
   <!--********************************************************************
