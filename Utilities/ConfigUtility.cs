@@ -10,12 +10,18 @@ namespace Common.Utilities
 {
     public static class ConfigUtility
     {
+        private static readonly List<string> SkippedConfigs = [];
         public static event EventHandler<ConfigChangedEventArgs>? ConfigChanged;
-
         public static void InitializeDefaultConfig(IConfigurable config, string? category = null)
         {
             foreach (PropertyInfo property in config.GetType().GetProperties())
             {
+                if (ShouldSkipConfig(property.Name))
+                {
+                    // Skip this property
+                    continue;
+                }
+
                 if (property.GetCustomAttribute(typeof(DefaultValueAttribute)) is not DefaultValueAttribute defaultValueAttribute) continue;
 
                 object? defaultValue = defaultValueAttribute.Value;
@@ -76,6 +82,16 @@ namespace Common.Utilities
             ConfigManager.Monitor?.Log($"Property '{propertyName}' not found in config.", LogLevel.Error);
             return null;
         }
+
+        public static void SkipConfig(string configName)
+        {
+            if (!SkippedConfigs.Contains(configName))
+            {
+                SkippedConfigs.Add(configName);
+            }
+        }
+
+        private static bool ShouldSkipConfig(string configName) => SkippedConfigs.Contains(configName);
 
         private static void OnConfigChanged(IConfigurable config, string propertyName, object? oldValue, object newValue)
         {
