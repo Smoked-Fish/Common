@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>12579e9d-41d2-4b76-993f-0e129ab9bdf9</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- GLOBAL -->
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalUsings.cs" />
+    <!-- CONFIG -->
+    <Compile Include="$(MSBuildThisFileDirectory)APIs/IConfigurable.cs" Condition="$(Common.Contains('CONFIG')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)APIs/IGenericModConfigMenuApi.cs" Condition="$(Common.Contains('CONFIG')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers/ConfigManager.cs" Condition="$(Common.Contains('CONFIG')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/ApiRegistry.cs" Condition="$(Common.Contains('CONFIG')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/ConfigUtility.cs" Condition="$(Common.Contains('CONFIG')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/LocalizationUtility.cs" Condition="$(Common.Contains('CONFIG')) Or $(Common.Contains('ALL'))" />
+    <!-- PATCH -->
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers/PatchHelper.cs" Condition="$(Common.Contains('PATCH')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/Exceptions/InstanceNullException.cs" Condition="$(Common.Contains('PATCH')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/Exceptions/PatchingException.cs" Condition="$(Common.Contains('PATCH')) Or $(Common.Contains('ALL'))" />
+    <!-- MOD CONFIG MENU PATCHES -->
+    <Compile Include="$(MSBuildThisFileDirectory)Managers/ConfigManagerExtension.cs" Condition="$(Common.Contains('GMCM')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers/PageHelper.cs" Condition="$(Common.Contains('GMCM')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers/TooltipHelper.cs" Condition="$(Common.Contains('GMCM')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/Options/ButtonOption.cs" Condition="$(Common.Contains('GMCM')) Or $(Common.Contains('ALL'))" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/Options/SeparatorOption.cs" Condition="$(Common.Contains('GMCM')) Or $(Common.Contains('ALL'))" />
+  </ItemGroup>
+</Project>
