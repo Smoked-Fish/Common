@@ -46,9 +46,9 @@
   <!-- Import the common project files and set harmony -->
   <Import Project="$(MSBuildThisFileDirectory)\All.projitems" Condition="$(Common.Contains('ALL'))" />
   <Import Project="$(MSBuildThisFileDirectory)\Config.projitems" Condition="$(Common.Contains('CONFIG')) And !$(Common.Contains('ALL'))" />
-  <Import Project="$(MSBuildThisFileDirectory)\Harmony.projitems" Condition="$(Common.Contains('PATCH')) Or $(Common.Contains('MENU_PATCH')) And !$(Common.Contains('ALL'))" />
+  <Import Project="$(MSBuildThisFileDirectory)\Harmony.projitems" Condition="($(Common.Contains('PATCH')) Or $(Common.Contains('MENU_PATCH'))) And !$(Common.Contains('ALL'))" />
   <Import Project="$(MSBuildThisFileDirectory)\ConfigMenuPatches.projitems" Condition="$(Common.Contains('MENU_PATCH')) And !$(Common.Contains('ALL'))" />
-  <Import Project="$(MSBuildThisFileDirectory)\Global.projitems" Condition="!$(Common.Contains('ALL'))" />
+  <Import Project="$(MSBuildThisFileDirectory)\Global.projitems"/>
 
   <PropertyGroup Condition="$(Common.Contains('ALL')) or $(Common.Contains('PATCH')) or $(Common.Contains('MENU_PATCH'))">
     <EnableHarmony>true</EnableHarmony>

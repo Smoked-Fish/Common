@@ -9,6 +9,6 @@
     <Import_RootNamespace>Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)**/*.cs" Exclude="$(MSBuildThisFileDirectory)obj\**\*.cs;$(MSBuildThisFileDirectory)bin\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)**/*.cs" Exclude="$(MSBuildThisFileDirectory)obj\**\*.cs;$(MSBuildThisFileDirectory)bin\**\*.cs;$(MSBuildThisFileDirectory)GlobalUsings.cs" />
   </ItemGroup>
 </Project>
