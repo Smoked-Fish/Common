@@ -9,6 +9,8 @@
     <Import_RootNamespace>Common</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <!-- EXCLUDE -->
+    <Compile Remove="$(MSBuildThisFileDirectory)**/*.cs" />
     <!-- GLOBAL -->
     <Compile Include="$(MSBuildThisFileDirectory)GlobalUsings.cs" />
     <!-- CONFIG -->
