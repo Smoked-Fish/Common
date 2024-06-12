@@ -28,44 +28,9 @@
   * Initialization Tasks
   *********************************************************************-->
   <Target Name="InitializationTasks" >
-    <!-- Throw Conditional Error -->
-    <Error Text="EnableHarmony must be set to 'true' if CommonPatches is set to 'true'." Code="HARMONY_REQUIRED" Condition="'$(CommonPatches)' == 'true' and '$(EnableHarmony)' != 'true'" />
-    
     <!-- Create a symbolic link to .editorconfig file -->
     <Exec Command="mklink &quot;$(LinkPath)&quot; &quot;$(SourcePath)&quot;" Condition="'$(GITHUB_ACTIONS)' != 'true' and !Exists('$(LinkPath)')" />
   </Target>
-
-
-  <!--********************************************************************
-  * Remove unnecessary files
-  *********************************************************************-->
-  <ItemGroup>
-    <None Remove=".gitignore" />
-    <None Remove=".gitmodules" />
-    <None Remove="Framework\Common\.git" />
-    <None Remove="Framework\Common\.editorconfig" />
-    <None Remove="CONTRIBUTING.md" />
-    <None Remove="LICENSE" />
-    <None Remove="README.md" />
-    <None Remove="images\**" />
-    <EditorConfigFiles Remove="$(MSBuildThisFileDirectory).editorconfig" />
-  </ItemGroup>
-
-  <!-- Conditionally Remove Common Patches -->
-  <ItemGroup Condition="'$(CommonPatches)' != 'true'">
-    <Compile Remove="Framework\Common\Managers\ConfigManagerExtension.cs" />
-    <Compile Remove="Framework\Common\Helpers\PageHelper.cs" />
-    <Compile Remove="Framework\Common\Helpers\TooltipHelper.cs" />
-    <Compile Remove="Framework\Common\Utilities\Options\ButtonOption.cs" />
-    <Compile Remove="Framework\Common\Utilities\Options\SeparatorOption.cs" />
-  </ItemGroup>
-
-  <!-- Conditionally Remove PatchHelper -->
-  <ItemGroup Condition="'$(EnableHarmony)' != 'true'">
-    <Compile Remove="Framework\Common\Helpers\PatchHelper.cs" />
-    <Compile Remove="Framework\Common\Utilities\Exceptions\InstanceNullException.cs" />
-    <Compile Remove="Framework\Common\Utilities\Exceptions\PatchingException.cs" />
-  </ItemGroup>
 
   <!--********************************************************************
   * Package references
@@ -74,4 +39,32 @@
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="4.1.1" />
   </ItemGroup>
 
+  <!--********************************************************************
+  * Common references
+  *********************************************************************-->
+
+  <!-- Import the common project files and set harmony -->
+  <Import Project="$(MSBuildThisFileDirectory)\All.projitems" Condition="$(Common.Contains('ALL'))" />
+  <Import Project="$(MSBuildThisFileDirectory)\Config.projitems" Condition="$(Common.Contains('CONFIG')) And !$(Common.Contains('ALL'))" />
+  <Import Project="$(MSBuildThisFileDirectory)\Harmony.projitems" Condition="$(Common.Contains('PATCH')) Or $(Common.Contains('MENU_PATCH')) And !$(Common.Contains('ALL'))" />
+  <Import Project="$(MSBuildThisFileDirectory)\ConfigMenuPatches.projitems" Condition="$(Common.Contains('MENU_PATCH')) And !$(Common.Contains('ALL'))" />
+  <Import Project="$(MSBuildThisFileDirectory)\Global.projitems" Condition="!$(Common.Contains('ALL'))" />
+
+  <PropertyGroup Condition="$(Common.Contains('ALL')) or $(Common.Contains('PATCH')) or $(Common.Contains('MENU_PATCH'))">
+    <EnableHarmony>true</EnableHarmony>
+  </PropertyGroup>
+
+  <!--********************************************************************
+  * Remove unnecessary files
+  *********************************************************************-->
+  <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove=".gitmodules" />
+    <None Remove="CONTRIBUTING.md" />
+    <None Remove="LICENSE" />
+    <None Remove="README.md" />
+    <None Remove="images\**" />
+    <EditorConfigFiles Remove="$(MSBuildThisFileDirectory).editorconfig" />
+  </ItemGroup>
+  
 </Project>

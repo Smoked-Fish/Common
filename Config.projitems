@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>12579e9d-41d2-4b76-993f-0e129ab9bdf9</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Common</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)APIs/IConfigurable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)APIs/IGenericModConfigMenuApi.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Managers/ConfigManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/ApiRegistry.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/ConfigUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utilities/LocalizationUtility.cs" />
+  </ItemGroup>
+</Project>
